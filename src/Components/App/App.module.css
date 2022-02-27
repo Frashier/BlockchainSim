@@ -1,0 +1,10 @@
+.app_container {
+  margin: 0;
+  padding: 0;
+}
+
+.app_body {
+  border-style: solid;
+  border-width: 2px;
+  border-color: black;
+}

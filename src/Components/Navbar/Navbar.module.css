@@ -1,0 +1,35 @@
+.navbar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--dark_liver);
+}
+
+.navbar_navigation {
+  margin: 25px;
+  display: flex;
+  flex-direction: row;
+  gap: 40px;
+}
+
+.navbar_navigation_link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 180px;
+  height: 45px;
+  background-color: var(--umber);
+  text-decoration: none;
+  color: #fff;
+  font-size: 20px;
+  border-radius: 12px;
+  transition: all 0.1s ease-in-out;
+}
+
+.navbar_navigation_link:hover {
+  transform: scale(1.05);
+}
+
+.navbar_navigation_link:active {
+  transform: scale(0.95);
+}

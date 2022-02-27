@@ -1,0 +1,8 @@
+.simulation_scene_block {
+  height: 50px;
+  width: 50px;
+  background-color: rgb(255, 255, 255);
+  border-color: rgb(0, 0, 0);
+  border-style: solid;
+  border-width: 5px;
+}
