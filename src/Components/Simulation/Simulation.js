@@ -8,60 +8,56 @@ function createBlock(id, data) {
 
 function Block(props) {
   return (
-    <motion.div
+    <motion.rect
+      width="140"
+      height="140"
+      fill="white"
+      stroke="black"
+      strokeWidth="5px"
+      animate="visible"
+      transition={{ duration: 0.5 }}
       className={styles.simulation_scene_block}
-      drag
-      dragConstraints={props.dragConstraint}
-    >
-      {props.data}
-    </motion.div>
-  );
-}
-
-function Blockchain(props) {
-  return (
-    <div>
-      {props.blocks.map((i, block) => {
-        return (
-          <Block
-            key={block}
-            dragConstraint={props.dragConstraint}
-            data={block.data}
-          />
-        );
-      })}
-    </div>
+    ></motion.rect>
   );
 }
 
 function Simulation() {
-  let numberOfBlocks = 0;
-  const [blocks, setBlocks] = useState([
-    createBlock(numberOfBlocks, numberOfBlocks),
-  ]);
+  const [numberOfBlocks, setNumber] = useState(1);
+  const [blocks, setBlocks] = useState([createBlock(0, 0)]);
   const constraintRef = useRef(null);
-
-  useEffect(() => {
-    numberOfBlocks++;
-  });
+  const [cursor, setCursor] = useState({ x: 100, y: 100 });
 
   return (
-    <div className={styles.simulation}>
+    <>
       <div className={styles.simulation_toolbar}>
         <button
-          onClick={() =>
-            setBlocks(
-              blocks.concat([createBlock(numberOfBlocks, numberOfBlocks)])
-            )
-          }
+          onClick={() => {
+            setNumber(numberOfBlocks + 1);
+            setBlocks([...blocks, createBlock(numberOfBlocks, numberOfBlocks)]);
+          }}
         >
           Add block
         </button>
+        {blocks.length}
       </div>
-      <div className={styles.simulation_scene} ref={constraintRef}>
-        <Blockchain dragConstraint={constraintRef} blocks={blocks}></Blockchain>
+      <div className={styles.simulation_scene}>
+        <motion.svg
+          width="100%"
+          height="100%"
+          viewBox="0 0 100vw 100vh"
+          initial="hidden"
+          animate="visible"
+          style={{ objectFit: "fill" }}
+          ref={constraintRef}
+        >
+          <motion.g drag dragConstraints={constraintRef}>
+            {blocks.map((block) => {
+              return <Block key={block.id} {...block} />;
+            })}
+          </motion.g>
+        </motion.svg>
       </div>
-    </div>
+    </>
   );
 }
 
