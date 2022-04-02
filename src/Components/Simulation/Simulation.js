@@ -45,6 +45,9 @@ function mine(block, difficulty) {
 }
 
 function Block(props) {
+  const blockWidth = "180";
+  const blockHeight = "180";
+
   // Block fill based on block type
   let color;
   if (props.type === "origin") color = "#b8424d";
@@ -54,9 +57,9 @@ function Block(props) {
   return (
     <>
       <motion.rect
-        width="180"
-        height="180"
-        x={280 * props.position}
+        width={blockWidth}
+        height={blockHeight}
+        x={2 * blockWidth * props.position}
         fill={color}
         stroke="black"
         strokeWidth="5px"
@@ -65,7 +68,7 @@ function Block(props) {
       <foreignObject
         width="176"
         height="135"
-        x={280 * props.position + 2}
+        x={2 * blockWidth * props.position + 2}
         y="0"
         color="black"
         fontSize="10"
@@ -78,6 +81,14 @@ function Block(props) {
         <hr style={{ border: "1px solid black" }} />
         <div className={styles.simulation_scene_block_body}>{props.body}</div>
       </foreignObject>
+      <motion.line
+        x1={2 * blockWidth * props.position}
+        y1={blockHeight / 2}
+        x2={2 * blockWidth * props.position - blockWidth}
+        y2={blockHeight / 2}
+        stroke="black"
+        strokeWidth="5px"
+      />
     </>
   );
 }
