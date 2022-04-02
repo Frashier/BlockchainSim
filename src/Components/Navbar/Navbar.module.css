@@ -2,7 +2,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: var(--dark_liver);
 }
 
 .navbar_navigation {
@@ -18,9 +17,8 @@
   justify-content: center;
   width: 180px;
   height: 45px;
-  background-color: var(--umber);
   text-decoration: none;
-  color: #fff;
+  color: var(--white);
   font-size: 20px;
   border-radius: 12px;
   transition: all 0.1s ease-in-out;

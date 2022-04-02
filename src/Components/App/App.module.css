@@ -7,9 +7,7 @@
 }
 
 .app_body {
-  border-style: solid;
-  border-width: 2px;
-  border-color: black;
+  color: var(--white);
 
   display: flex;
   flex-direction: column;

@@ -2,3 +2,34 @@
   flex: 1 1 0%;
   overflow: hidden;
 }
+
+.simulation_toolbar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
+
+.simulation_toolbar_body {
+  display: flex;
+  gap: 20px;
+}
+
+.simulation_toolbar_difficulty {
+  display: flex;
+  gap: 20px;
+}
+.simulation_scene_block_text {
+  display: flex;
+}
+
+.simulation_scene_block_header {
+  font-size: 10px;
+  margin-bottom: 5px;
+  padding: 10px;
+}
+
+.simulation_scene_block_body {
+  margin-top: 5px;
+  font-size: 15px;
+  padding: 10px;
+}

@@ -5,14 +5,18 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #a7bbec;
+  background: rgb(27, 33, 37);
+  background: linear-gradient(
+    135deg,
+    rgba(27, 33, 37, 1) 63%,
+    rgba(184, 66, 77, 1) 100%
+  );
   padding: 0px;
 
-  --black: #020202;
-  --dark_liver: #503b31;
-  --umber: #705d56;
-  --blue_bell: #9097c0;
-  --wild_blue: #a7bbec;
+  --dark: #1b2125;
+  --red: #b8424d;
+  --white: #fcfbfc;
+  --grey: #929dac;
 }
 html,
 body,
