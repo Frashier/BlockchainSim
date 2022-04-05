@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import sha1 from "crypto-js/sha1";
 import Hex from "crypto-js/enc-hex";
 
+// Helper function used to peek at the structure of the block
 function createBlock(type, prevHash, timestamp, nonce, body) {
   return {
     type: type,
@@ -20,10 +21,15 @@ function hex2bin(hex) {
 
 function mine(block, difficulty) {
   let info = { hash: "", nonce: 0 };
-  console.log(block.body);
+
   while (true) {
     // Value to hash
-    const toHash = (block.prevHash + block.timestamp + info.nonce).toString();
+    const toHash = (
+      block.prevHash +
+      block.timestamp +
+      block.body +
+      info.nonce
+    ).toString();
 
     // Generate hash as hex string and convert to binary
     info.hash = Hex.stringify(sha1(toHash));
@@ -37,7 +43,9 @@ function mine(block, difficulty) {
     if (hex2bin(info.hash).length <= 160 - difficulty) return info;
 
     info.nonce++;
+
     // Guard against iterating too many times
+    // TODO: remove
     if (info.nonce == 1000) {
       return null;
     }
@@ -50,7 +58,7 @@ function Block(props) {
 
   // Block fill based on block type
   let color;
-  if (props.type === "origin") color = "#b8424d";
+  if (props.type === "genesis") color = "#a23ad6";
   else if (props.type === "orphan") color = "#929dac";
   else color = "white";
 
@@ -66,6 +74,7 @@ function Block(props) {
         className={styles.simulation_scene_block}
       ></motion.rect>
       <foreignObject
+        onClick={() => props.orphanBlock(props.prevHash)}
         width="176"
         height="135"
         x={2 * blockWidth * props.position + 2}
@@ -96,10 +105,28 @@ function Block(props) {
 function Simulation() {
   const [difficulty, setDifficulty] = useState(2);
   const [blocks, setBlocks] = useState([
-    createBlock("origin", 0, Date.now(), 0, "origin"),
+    createBlock("genesis", 0, Date.now(), 0, "genesis"),
   ]);
+  const [orphanMode, setOrphanMode] = useState(false);
+
   const constraintRef = useRef(null);
   const blockBodyRef = useRef(null);
+
+  const orphanBlock = (prevHash) => {
+    if (!orphanMode) return;
+    setOrphanMode(false);
+
+    // TODO:
+    // find next orphaned blocks
+    let newBlocks = blocks;
+    newBlocks.forEach((block) => {
+      if (block.prevHash == prevHash) {
+        block.type = "orphan";
+      }
+    });
+
+    setBlocks(newBlocks);
+  };
 
   return (
     <>
@@ -131,6 +158,7 @@ function Simulation() {
             }}
           />
         </form>
+        <button onClick={() => setOrphanMode(true)}>Orphan block</button>
         <form className={styles.simulation_toolbar_difficulty}>
           <label for="difficulty">Difficulty:</label>
           <input
@@ -159,7 +187,14 @@ function Simulation() {
         >
           <motion.g drag dragConstraints={constraintRef}>
             {blocks.map((block, i) => {
-              return <Block key={block.prevHash} {...block} position={i} />;
+              return (
+                <Block
+                  key={block.prevHash}
+                  {...block}
+                  orphanBlock={orphanBlock}
+                  position={i}
+                />
+              );
             })}
           </motion.g>
         </motion.svg>
