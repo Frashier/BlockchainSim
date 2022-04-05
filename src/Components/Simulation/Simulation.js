@@ -1,58 +1,9 @@
 import styles from "./Simulation.module.css";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import sha1 from "crypto-js/sha1";
-import Hex from "crypto-js/enc-hex";
+import { Block, Blockchain } from "./Blockchain";
 
-// Helper function used to peek at the structure of the block
-function createBlock(type, prevHash, timestamp, nonce, body) {
-  return {
-    type: type,
-    prevHash: prevHash,
-    timestamp: timestamp,
-    nonce: nonce,
-    body: body,
-  };
-}
-
-function hex2bin(hex) {
-  return parseInt(hex, 16).toString(2);
-}
-
-function mine(block, difficulty) {
-  let info = { hash: "", nonce: 0 };
-
-  while (true) {
-    // Value to hash
-    const toHash = (
-      block.prevHash +
-      block.timestamp +
-      block.body +
-      info.nonce
-    ).toString();
-
-    // Generate hash as hex string and convert to binary
-    info.hash = Hex.stringify(sha1(toHash));
-
-    // SHA1 algorithm has size of 160 bits.
-    // The difficulty level is the amount of zeros
-    // starting at the most significant bit.
-    // The difference between SHA1 hash bit count
-    // and the difficulty level is the position of the
-    // first non-zero bit starting from the most significant one
-    if (hex2bin(info.hash).length <= 160 - difficulty) return info;
-
-    info.nonce++;
-
-    // Guard against iterating too many times
-    // TODO: remove
-    if (info.nonce == 1000) {
-      return null;
-    }
-  }
-}
-
-function Block(props) {
+function BlockComponent(props) {
   const blockWidth = "180";
   const blockHeight = "180";
 
@@ -104,9 +55,7 @@ function Block(props) {
 
 function Simulation() {
   const [difficulty, setDifficulty] = useState(2);
-  const [blocks, setBlocks] = useState([
-    createBlock("genesis", 0, Date.now(), 0, "genesis"),
-  ]);
+  const [blockchain, setBlockchain] = useState(new Blockchain());
   const [orphanMode, setOrphanMode] = useState(false);
 
   const constraintRef = useRef(null);
@@ -115,17 +64,27 @@ function Simulation() {
   const orphanBlock = (prevHash) => {
     if (!orphanMode) return;
     setOrphanMode(false);
+    setBlockchain(new Blockchain(blockchain.orphanBlock(prevHash)));
+  };
 
-    // TODO:
-    // find next orphaned blocks
-    let newBlocks = blocks;
-    newBlocks.forEach((block) => {
-      if (block.prevHash == prevHash) {
-        block.type = "orphan";
-      }
-    });
+  const handleAddBlock = (event) => {
+    event.preventDefault();
 
-    setBlocks(newBlocks);
+    const mineInfo = blockchain.blocks[blockchain.blocks.length - 1].mine(
+      difficulty
+    );
+
+    setBlockchain(
+      blockchain.addBlock(
+        new Block(
+          "normal",
+          mineInfo.hash,
+          Date.now(),
+          mineInfo.nonce,
+          blockBodyRef.current.value
+        )
+      )
+    );
   };
 
   return (
@@ -139,24 +98,7 @@ function Simulation() {
             name="body"
             placeholder="Block's body"
           />
-          <input
-            type="submit"
-            value="Add block"
-            onClick={(event) => {
-              event.preventDefault();
-              const mineInfo = mine(blocks[blocks.length - 1], difficulty);
-              setBlocks([
-                ...blocks,
-                createBlock(
-                  "normal",
-                  mineInfo.hash,
-                  Date.now(),
-                  mineInfo.nonce,
-                  blockBodyRef.current.value
-                ),
-              ]);
-            }}
-          />
+          <input type="submit" value="Add block" onClick={handleAddBlock} />
         </form>
         <button onClick={() => setOrphanMode(true)}>Orphan block</button>
         <form className={styles.simulation_toolbar_difficulty}>
@@ -186,9 +128,9 @@ function Simulation() {
           ref={constraintRef}
         >
           <motion.g drag dragConstraints={constraintRef}>
-            {blocks.map((block, i) => {
+            {blockchain.blocks.map((block, i) => {
               return (
-                <Block
+                <BlockComponent
                   key={block.prevHash}
                   {...block}
                   orphanBlock={orphanBlock}

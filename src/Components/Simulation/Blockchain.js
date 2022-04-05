@@ -1,3 +1,6 @@
+import sha1 from "crypto-js/sha1";
+import Hex from "crypto-js/enc-hex";
+
 function hex2bin(hex) {
   return parseInt(hex, 16).toString(2);
 }
@@ -20,7 +23,7 @@ class Block {
         this.prevHash +
         this.timestamp +
         this.body +
-        this.nonce
+        info.nonce
       ).toString();
 
       // Generate hash as hex string and convert to binary
@@ -46,18 +49,27 @@ class Block {
 }
 
 class Blockchain {
-  constructor() {
-    this.blocks = Block("genesis", 0, Date.now(), 0, "genesis");
+  constructor(blocks) {
+    if (blocks === undefined)
+      this.blocks = [new Block("genesis", 0, Date.now(), 0, "genesis")];
+    else this.blocks = blocks;
   }
-
+  // TODO:
+  // find next orphaned blocks
   orphanBlock(prevHash) {
-    let newBlocks = blocks;
+    let newBlocks = this.blocks;
     newBlocks.forEach((block) => {
-      if (block.prevHash == prevHash) {
+      if (block.prevHash == prevHash && block.type != "genesis") {
         block.type = "orphan";
       }
     });
 
     return newBlocks;
   }
+
+  addBlock(block) {
+    return new Blockchain([...this.blocks, block]);
+  }
 }
+
+export { Blockchain, Block };
