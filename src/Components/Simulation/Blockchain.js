@@ -5,6 +5,10 @@ function hex2bin(hex) {
   return parseInt(hex, 16).toString(2);
 }
 
+function getRandomInt(max) {
+  return Math.floor(Math.random() * max);
+}
+
 class Block {
   constructor(type, prevHash, timestamp, nonce, body) {
     this.type = type;
@@ -12,6 +16,7 @@ class Block {
     this.timestamp = timestamp;
     this.nonce = nonce;
     this.body = body;
+    this.maxNonce = 1000000;
   }
 
   hash(nonce) {
@@ -31,7 +36,7 @@ class Block {
   // verify blockchain
   // chance to add 2 blocks
   mine(difficulty) {
-    let info = { hash: "", nonce: 0 };
+    let info = { hash: "", nonce: getRandomInt(this.maxNonce) };
 
     while (true) {
       info.hash = this.hash(info.nonce);
@@ -44,13 +49,7 @@ class Block {
       // first non-zero bit starting from the most significant one
       if (hex2bin(info.hash).length <= 160 - difficulty) return info;
 
-      info.nonce++;
-
-      // Guard against iterating too many times
-      // TODO: remove
-      if (info.nonce === 1000) {
-        return null;
-      }
+      info.nonce = getRandomInt(this.maxNonce);
     }
   }
 }

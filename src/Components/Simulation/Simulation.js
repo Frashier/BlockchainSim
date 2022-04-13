@@ -4,9 +4,6 @@ import { motion } from "framer-motion";
 import { Block, Blockchain } from "./Blockchain";
 
 function BlockComponent(props) {
-  const blockWidth = "180";
-  const blockHeight = "180";
-
   // Block fill based on block type
   let color;
   if (props.type === "genesis") color = "#a23ad6";
@@ -14,11 +11,11 @@ function BlockComponent(props) {
   else color = "white";
 
   return (
-    <>
+    <motion.g>
       <motion.rect
-        width={blockWidth}
-        height={blockHeight}
-        x={2 * blockWidth * props.position}
+        width={props.blockWidth}
+        height={props.blockHeight}
+        x={props.x}
         fill={color}
         stroke="black"
         strokeWidth="5px"
@@ -28,8 +25,8 @@ function BlockComponent(props) {
         onClick={() => props.orphanBlock(props.prevHash)}
         width="176"
         height="135"
-        x={2 * blockWidth * props.position + 2}
-        y="0"
+        x={props.x + 2}
+        y={props.y}
         color="black"
         fontSize="10"
         className={styles.simulation_scene_block_text}
@@ -41,15 +38,49 @@ function BlockComponent(props) {
         <hr style={{ border: "1px solid black" }} />
         <div className={styles.simulation_scene_block_body}>{props.body}</div>
       </foreignObject>
-      <motion.line
-        x1={2 * blockWidth * props.position}
-        y1={blockHeight / 2}
-        x2={2 * blockWidth * props.position - blockWidth}
-        y2={blockHeight / 2}
-        stroke="black"
-        strokeWidth="5px"
-      />
-    </>
+    </motion.g>
+  );
+}
+
+function BlockchainComponent(props) {
+  const blockWidth = "180";
+  const blockHeight = "180";
+
+  return (
+    <motion.g drag dragConstraints={props.constraintRef}>
+      {props.blockchain.blocks.map((block, i) => {
+        const x = 2 * blockWidth * i;
+        const y = 0; // TODO: change when implementing branching
+
+        // Prevent first line from drawing
+        const line =
+          block.type === "genesis" ? (
+            ""
+          ) : (
+            <motion.line
+              x1={x}
+              y1={blockHeight / 2}
+              x2={x - blockWidth}
+              y2={blockHeight / 2}
+              stroke="black"
+              strokeWidth="5px"
+            />
+          );
+
+        return (
+          <motion.g key={block.prevHash}>
+            <BlockComponent
+              {...block}
+              orphanBlock={props.orphanBlock}
+              blockWidth={blockWidth}
+              blockHeight={blockHeight}
+              x={x}
+            />
+            {line}
+          </motion.g>
+        );
+      })}
+    </motion.g>
   );
 }
 
@@ -127,18 +158,11 @@ function Simulation() {
           style={{ objectFit: "fill" }}
           ref={constraintRef}
         >
-          <motion.g drag dragConstraints={constraintRef}>
-            {blockchain.blocks.map((block, i) => {
-              return (
-                <BlockComponent
-                  key={block.prevHash}
-                  {...block}
-                  orphanBlock={orphanBlock}
-                  position={i}
-                />
-              );
-            })}
-          </motion.g>
+          <BlockchainComponent
+            constraintRef={constraintRef}
+            blockchain={blockchain}
+            orphanBlock={orphanBlock}
+          />
         </motion.svg>
       </div>
     </>
