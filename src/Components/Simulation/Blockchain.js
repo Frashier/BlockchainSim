@@ -14,20 +14,27 @@ class Block {
     this.body = body;
   }
 
+  hash(nonce) {
+    const toHash = (
+      this.prevHash +
+      this.timestamp +
+      this.body +
+      this.nonce +
+      nonce
+    ).toString();
+
+    return Hex.stringify(sha1(toHash));
+  }
+
+  // TODO:
+  // verify block
+  // verify blockchain
+  // chance to add 2 blocks
   mine(difficulty) {
     let info = { hash: "", nonce: 0 };
 
     while (true) {
-      // Value to hash
-      const toHash = (
-        this.prevHash +
-        this.timestamp +
-        this.body +
-        info.nonce
-      ).toString();
-
-      // Generate hash as hex string and convert to binary
-      info.hash = Hex.stringify(sha1(toHash));
+      info.hash = this.hash(info.nonce);
 
       // SHA1 algorithm has size of 160 bits.
       // The difficulty level is the amount of zeros
@@ -41,7 +48,7 @@ class Block {
 
       // Guard against iterating too many times
       // TODO: remove
-      if (info.nonce == 1000) {
+      if (info.nonce === 1000) {
         return null;
       }
     }
@@ -50,19 +57,35 @@ class Block {
 
 class Blockchain {
   constructor(blocks) {
-    if (blocks === undefined)
+    if (blocks === undefined) {
       this.blocks = [new Block("genesis", 0, Date.now(), 0, "genesis")];
-    else this.blocks = blocks;
+    } else this.blocks = blocks;
   }
-  // TODO:
-  // find next orphaned blocks
+
   orphanBlock(prevHash) {
     let newBlocks = this.blocks;
-    newBlocks.forEach((block) => {
-      if (block.prevHash == prevHash && block.type != "genesis") {
+
+    // Find block with specified previous hash
+    const index = newBlocks.findIndex(
+      (block) => block.prevHash === prevHash && block.type !== "genesis"
+    );
+    newBlocks[index].type = "orphan";
+
+    // Traverse through the rest of the blocks
+    // (added chronologically to the array)
+    // and delete every successor of the
+    // unverified block
+    let currentBlock = newBlocks[index];
+    for (let i = index + 1; i < newBlocks.length; i++) {
+      const block = newBlocks[i];
+
+      if (block.type === "genesis") continue;
+
+      if (currentBlock.hash(block.nonce) === block.prevHash) {
         block.type = "orphan";
+        currentBlock = block;
       }
-    });
+    }
 
     return newBlocks;
   }
