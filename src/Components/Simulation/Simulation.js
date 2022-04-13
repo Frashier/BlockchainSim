@@ -11,15 +11,15 @@ function BlockComponent(props) {
   else color = "white";
 
   return (
-    <motion.g>
+    <motion.g className={styles.simulation_scene_block}>
       <motion.rect
         width={props.blockWidth}
         height={props.blockHeight}
         x={props.x}
+        y={props.y}
         fill={color}
         stroke="black"
         strokeWidth="5px"
-        className={styles.simulation_scene_block}
       ></motion.rect>
       <foreignObject
         onClick={() => props.orphanBlock(props.prevHash)}
@@ -46,11 +46,18 @@ function BlockchainComponent(props) {
   const blockWidth = "180";
   const blockHeight = "180";
 
+  let previousHash = "";
   return (
     <motion.g drag dragConstraints={props.constraintRef}>
       {props.blockchain.blocks.map((block, i) => {
         const x = 2 * blockWidth * i;
-        const y = 0; // TODO: change when implementing branching
+        let y = 0;
+
+        if (previousHash === block.prevHash) {
+          y += 2 * blockHeight;
+        }
+
+        previousHash = block.prevHash;
 
         // Prevent first line from drawing
         const line =
@@ -75,6 +82,7 @@ function BlockchainComponent(props) {
               blockWidth={blockWidth}
               blockHeight={blockHeight}
               x={x}
+              y={y}
             />
             {line}
           </motion.g>
@@ -85,9 +93,16 @@ function BlockchainComponent(props) {
 }
 
 function Simulation() {
+  // Value stored by the difficulty variable determines
+  // how many zeros must be at the start of the SHA1 160 bit hash
+  // in binary representation
   const [difficulty, setDifficulty] = useState(2);
   const [blockchain, setBlockchain] = useState(new Blockchain());
   const [orphanMode, setOrphanMode] = useState(false);
+
+  // The block we are pointing at specified by the
+  // hash of the block before it
+  const [blockchainHead, setBlockchainHead] = useState("");
 
   const constraintRef = useRef(null);
   const blockBodyRef = useRef(null);
@@ -98,24 +113,43 @@ function Simulation() {
     setBlockchain(new Blockchain(blockchain.orphanBlock(prevHash)));
   };
 
+  // 10% chance of blockchain creating a
+  // concurrent path
+  const doesBranch = () => Math.random() < 0.1;
+
   const handleAddBlock = (event) => {
     event.preventDefault();
 
     const mineInfo = blockchain.blocks[blockchain.blocks.length - 1].mine(
       difficulty
     );
+    let blocksToAdd = [
+      new Block(
+        "normal",
+        mineInfo.hash,
+        Date.now(),
+        mineInfo.nonce,
+        blockBodyRef.current.value
+      ),
+    ];
 
-    setBlockchain(
-      blockchain.addBlock(
+    if (doesBranch()) {
+      const concurrentMineInfo = blockchain.blocks[
+        blockchain.blocks.length - 1
+      ].mine(difficulty);
+
+      blocksToAdd.push(
         new Block(
           "normal",
-          mineInfo.hash,
+          concurrentMineInfo.hash,
           Date.now(),
-          mineInfo.nonce,
+          concurrentMineInfo.nonce,
           blockBodyRef.current.value
         )
-      )
-    );
+      );
+    }
+
+    setBlockchain(new Blockchain([...blockchain.blocks, ...blocksToAdd]));
   };
 
   return (
