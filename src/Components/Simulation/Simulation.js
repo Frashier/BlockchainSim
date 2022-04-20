@@ -45,6 +45,14 @@ function BlockchainComponent(props) {
   const blockWidth = "180";
   const blockHeight = "180";
 
+  // The algorithm below loops through the whole blockchain twice
+  // assigning coordinates to corresponding blocks by increasing
+  // the coordinates of the previous block by a fixed amount
+  //
+  // Everytime the inner loop finds a corresponding block
+  // the y coordinate gets increased as every block found
+  // after the first one indicates branching took place
+
   let blocksAndCoords = [{ block: props.blockchain.blocks[0], x: 0, y: 0 }];
   const blocks = props.blockchain.blocks.slice();
 

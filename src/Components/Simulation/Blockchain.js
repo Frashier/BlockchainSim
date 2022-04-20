@@ -63,6 +63,7 @@ class Blockchain {
     } else this.blocks = blocks;
   }
 
+  // TODO: consider branched blocks
   orphanBlock(prevHash) {
     let newBlocks = this.blocks;
 
