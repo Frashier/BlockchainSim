@@ -54,6 +54,8 @@ class Block {
   }
 }
 
+// TODO:
+// nonce and prevHash
 class Blockchain {
   constructor(blocks) {
     if (blocks === undefined) {
@@ -86,7 +88,7 @@ class Blockchain {
       }
     }
 
-    return newBlocks;
+    return new Blockchain(newBlocks);
   }
 
   addBlock(block) {

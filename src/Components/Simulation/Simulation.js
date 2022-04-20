@@ -5,10 +5,9 @@ import { Block, Blockchain } from "./Blockchain";
 
 function BlockComponent(props) {
   // Block fill based on block type
-  let color;
+  let color = "white";
   if (props.type === "genesis") color = "#a23ad6";
   else if (props.type === "orphan") color = "#929dac";
-  else color = "white";
 
   return (
     <motion.g className={styles.simulation_scene_block}>
@@ -22,7 +21,7 @@ function BlockComponent(props) {
         strokeWidth="5px"
       ></motion.rect>
       <foreignObject
-        onClick={() => props.orphanBlock(props.prevHash)}
+        onClick={() => props.handleClick(props.prevHash)}
         width="176"
         height="135"
         x={props.x + 2}
@@ -46,24 +45,69 @@ function BlockchainComponent(props) {
   const blockWidth = "180";
   const blockHeight = "180";
 
-  let previousHash = "";
-  return (
-    <motion.g drag dragConstraints={props.constraintRef}>
-      {props.blockchain.blocks.map((block, i) => {
-        const x = 2 * blockWidth * i;
-        let y = 0;
+  let blocksAndCoords = [{ block: props.blockchain.blocks[0], x: 0, y: 0 }];
+  const blocks = props.blockchain.blocks.slice();
 
-        if (previousHash === block.prevHash) {
-          y += 2 * blockHeight;
-        }
+  for (let i = 0; i < blocks.length; i++) {
+    const currentBlock = blocksAndCoords.find(
+      (object) => object.block.prevHash === blocks[i].prevHash
+    );
+    let tempY = currentBlock.y;
 
-        previousHash = block.prevHash;
+    for (let j = 1; j < blocks.length; j++) {
+      const possibleBlock = blocks[j];
 
-        // Prevent first line from drawing
-        const line =
-          block.type === "genesis" ? (
-            ""
-          ) : (
+      if (
+        currentBlock.block.hash(possibleBlock.nonce) === possibleBlock.prevHash
+      ) {
+        blocksAndCoords.push({
+          block: possibleBlock,
+          x: currentBlock.x + 2 * blockWidth,
+          y: tempY,
+        });
+        tempY += 2 * blockHeight;
+      }
+    }
+  }
+
+  /*
+  let tempBlocks = props.blockchain.blocks.slice();
+  let divsToRender = [];
+
+  let currentBlock = tempBlocks[0];
+  divsToRender.push(
+    <motion.g key={currentBlock.prevHash}>
+      <BlockComponent
+        {...currentBlock}
+        handleClick={props.handleClick}
+        blockWidth={blockWidth}
+        blockHeight={blockHeight}
+        x="0"
+        y="0"
+      />
+    </motion.g>
+  );
+  tempBlocks.splice(0, 1);
+
+  let x = 2 * blockWidth;
+  let y = 0;
+  let guard = 0;
+  while (tempBlocks.length > 0) {
+    console.log(tempBlocks);
+    for (let i = 0; i < tempBlocks.length; i++) {
+      const block = tempBlocks[i];
+
+      if (currentBlock.hash(block.nonce) === block.prevHash) {
+        divsToRender.push(
+          <motion.g key={block.prevHash}>
+            <BlockComponent
+              {...block}
+              handleClick={props.handleClick}
+              blockWidth={blockWidth}
+              blockHeight={blockHeight}
+              x={x}
+              y={y}
+            />
             <motion.line
               x1={x}
               y1={blockHeight / 2}
@@ -72,20 +116,31 @@ function BlockchainComponent(props) {
               stroke="black"
               strokeWidth="5px"
             />
-          );
-
-        return (
-          <motion.g key={block.prevHash}>
-            <BlockComponent
-              {...block}
-              orphanBlock={props.orphanBlock}
-              blockWidth={blockWidth}
-              blockHeight={blockHeight}
-              x={x}
-              y={y}
-            />
-            {line}
           </motion.g>
+        );
+        x += 2 * blockWidth;
+        tempBlocks.splice(i--, 1);
+        currentBlock = block;
+      }
+    }
+
+    y += 2 * blockHeight;
+    if (guard++ > 10) break;
+  }
+*/
+  return (
+    <motion.g drag dragConstraints={props.constraintRef}>
+      {blocksAndCoords.map((blockAndCoords) => {
+        return (
+          <BlockComponent
+            key={blockAndCoords.block.prevHash}
+            {...blockAndCoords.block}
+            handleClick={props.handleClick}
+            blockWidth={blockWidth}
+            blockHeight={blockHeight}
+            x={blockAndCoords.x}
+            y={blockAndCoords.y}
+          />
         );
       })}
     </motion.g>
@@ -100,29 +155,44 @@ function Simulation() {
   const [blockchain, setBlockchain] = useState(new Blockchain());
   const [orphanMode, setOrphanMode] = useState(false);
 
-  // The block we are pointing at specified by the
-  // hash of the block before it
-  const [blockchainHead, setBlockchainHead] = useState("");
+  // The block we are pointing at
+  const [blockSelected, setBlockSelected] = useState(blockchain.blocks[0]);
 
   const constraintRef = useRef(null);
   const blockBodyRef = useRef(null);
 
-  const orphanBlock = (prevHash) => {
-    if (!orphanMode) return;
-    setOrphanMode(false);
-    setBlockchain(new Blockchain(blockchain.orphanBlock(prevHash)));
+  // Method passed to each block
+  // if orphan mode, then orphan the block
+  // else, select it
+  const handleClick = (prevHash) => {
+    if (orphanMode) {
+      setOrphanMode(false);
+      setBlockchain(blockchain.orphanBlock(prevHash));
+      return;
+    }
+
+    setBlockSelected(
+      blockchain.blocks.find((block) => block.prevHash === prevHash)
+    );
   };
 
   // 10% chance of blockchain creating a
   // concurrent path
   const doesBranch = () => Math.random() < 0.1;
 
+  // Proccess of adding a block is as follows:
+  // 1. Get hash of the block we are pointing at
+  // accompanied by the nonce based on the difficulty
+  // (by default block added last is selected)
+  // 2. Add the block to temporary array
+  // 3. Randomly decide whether a new concurrent block
+  // should be added, if so then repeat 1. and 2. on it
+  // 4. Create a new blockchain by appending existing blocks
+  // and temporary blocks
   const handleAddBlock = (event) => {
     event.preventDefault();
 
-    const mineInfo = blockchain.blocks[blockchain.blocks.length - 1].mine(
-      difficulty
-    );
+    const mineInfo = blockSelected.mine(difficulty);
     let blocksToAdd = [
       new Block(
         "normal",
@@ -134,9 +204,7 @@ function Simulation() {
     ];
 
     if (doesBranch()) {
-      const concurrentMineInfo = blockchain.blocks[
-        blockchain.blocks.length - 1
-      ].mine(difficulty);
+      const concurrentMineInfo = blockSelected.mine(difficulty);
 
       blocksToAdd.push(
         new Block(
@@ -148,6 +216,9 @@ function Simulation() {
         )
       );
     }
+
+    // Change selection to block added last
+    setBlockSelected(blocksToAdd[blocksToAdd.length - 1]);
 
     setBlockchain(new Blockchain([...blockchain.blocks, ...blocksToAdd]));
   };
@@ -195,7 +266,7 @@ function Simulation() {
           <BlockchainComponent
             constraintRef={constraintRef}
             blockchain={blockchain}
-            orphanBlock={orphanBlock}
+            handleClick={handleClick}
           />
         </motion.svg>
       </div>
