@@ -55,7 +55,7 @@ class Block {
 }
 
 // TODO:
-// nonce and prevHash
+// nonce and prevHash on genesis
 class Blockchain {
   constructor(blocks) {
     if (blocks === undefined) {
@@ -63,30 +63,30 @@ class Blockchain {
     } else this.blocks = blocks;
   }
 
-  // TODO: consider branched blocks
   orphanBlock(prevHash) {
     let newBlocks = this.blocks;
 
     // Find block with specified previous hash
-    const index = newBlocks.findIndex(
+    let index = newBlocks.findIndex(
       (block) => block.prevHash === prevHash && block.type !== "genesis"
     );
-    newBlocks[index].type = "orphan";
 
-    // Traverse through the rest of the blocks
-    // (added chronologically to the array)
-    // and delete every successor of the
-    // unverified block
-    let currentBlock = newBlocks[index];
-    for (let i = index + 1; i < newBlocks.length; i++) {
-      const block = newBlocks[i];
-
-      if (block.type === "genesis") continue;
-
-      if (currentBlock.hash(block.nonce) === block.prevHash) {
-        block.type = "orphan";
-        currentBlock = block;
+    // Mark every successor of the unverified block as orphan
+    let nextBlocks = [newBlocks[index]];
+    while (nextBlocks.length !== 0) {
+      for (const possibleOrphan of newBlocks) {
+        if (
+          nextBlocks[0].hash(possibleOrphan.nonce) === possibleOrphan.prevHash
+        ) {
+          nextBlocks.push(possibleOrphan);
+        }
       }
+
+      index = newBlocks.findIndex(
+        (block) => block.prevHash === nextBlocks[0].prevHash
+      );
+      newBlocks[index].type = "orphan";
+      nextBlocks.shift();
     }
 
     return new Blockchain(newBlocks);

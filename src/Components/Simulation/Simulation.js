@@ -10,18 +10,23 @@ function BlockComponent(props) {
   else if (props.type === "orphan") color = "#929dac";
 
   return (
-    <motion.g className={styles.simulation_scene_block}>
+    <motion.g
+      whileHover={{ scale: 1.1 }}
+      className={styles.simulation_scene_block}
+    >
       <motion.rect
         width={props.blockWidth}
         height={props.blockHeight}
         x={props.x}
         y={props.y}
         fill={color}
-        stroke="black"
+        stroke={
+          props.blockSelected.prevHash === props.prevHash ? "green" : "black"
+        }
         strokeWidth="5px"
       ></motion.rect>
       <foreignObject
-        onClick={() => props.handleClick(props.prevHash)}
+        onClick={(e) => props.handleClick(e, props.prevHash)}
         width="176"
         height="135"
         x={props.x + 2}
@@ -41,6 +46,7 @@ function BlockComponent(props) {
   );
 }
 
+// TODO: button to see details of a block
 function BlockchainComponent(props) {
   const blockWidth = "180";
   const blockHeight = "180";
@@ -53,9 +59,10 @@ function BlockchainComponent(props) {
   // the y coordinate gets increased as every block found
   // after the first one indicates branching took place
 
-  let blocksAndCoords = [{ block: props.blockchain.blocks[0], x: 0, y: 0 }];
   const blocks = props.blockchain.blocks.slice();
+  let blocksAndCoords = [{ block: blocks[0], x: 0, y: 0 }];
 
+  // TODO: optimize
   for (let i = 0; i < blocks.length; i++) {
     const currentBlock = blocksAndCoords.find(
       (object) => object.block.prevHash === blocks[i].prevHash
@@ -79,43 +86,6 @@ function BlockchainComponent(props) {
   }
 
   /*
-  let tempBlocks = props.blockchain.blocks.slice();
-  let divsToRender = [];
-
-  let currentBlock = tempBlocks[0];
-  divsToRender.push(
-    <motion.g key={currentBlock.prevHash}>
-      <BlockComponent
-        {...currentBlock}
-        handleClick={props.handleClick}
-        blockWidth={blockWidth}
-        blockHeight={blockHeight}
-        x="0"
-        y="0"
-      />
-    </motion.g>
-  );
-  tempBlocks.splice(0, 1);
-
-  let x = 2 * blockWidth;
-  let y = 0;
-  let guard = 0;
-  while (tempBlocks.length > 0) {
-    console.log(tempBlocks);
-    for (let i = 0; i < tempBlocks.length; i++) {
-      const block = tempBlocks[i];
-
-      if (currentBlock.hash(block.nonce) === block.prevHash) {
-        divsToRender.push(
-          <motion.g key={block.prevHash}>
-            <BlockComponent
-              {...block}
-              handleClick={props.handleClick}
-              blockWidth={blockWidth}
-              blockHeight={blockHeight}
-              x={x}
-              y={y}
-            />
             <motion.line
               x1={x}
               y1={blockHeight / 2}
@@ -125,16 +95,6 @@ function BlockchainComponent(props) {
               strokeWidth="5px"
             />
           </motion.g>
-        );
-        x += 2 * blockWidth;
-        tempBlocks.splice(i--, 1);
-        currentBlock = block;
-      }
-    }
-
-    y += 2 * blockHeight;
-    if (guard++ > 10) break;
-  }
 */
   return (
     <motion.g drag dragConstraints={props.constraintRef}>
@@ -143,6 +103,7 @@ function BlockchainComponent(props) {
           <BlockComponent
             key={blockAndCoords.block.prevHash}
             {...blockAndCoords.block}
+            blockSelected={props.blockSelected}
             handleClick={props.handleClick}
             blockWidth={blockWidth}
             blockHeight={blockHeight}
@@ -172,16 +133,20 @@ function Simulation() {
   // Method passed to each block
   // if orphan mode, then orphan the block
   // else, select it
-  const handleClick = (prevHash) => {
+  const handleClick = (e, prevHash) => {
     if (orphanMode) {
       setOrphanMode(false);
       setBlockchain(blockchain.orphanBlock(prevHash));
       return;
     }
 
-    setBlockSelected(
-      blockchain.blocks.find((block) => block.prevHash === prevHash)
+    // If double clicked and not an orphan, select
+    const tempBlock = blockchain.blocks.find(
+      (block) => block.prevHash === prevHash
     );
+    if (e.detail === 2 && tempBlock.type !== "orphan") {
+      setBlockSelected(tempBlock);
+    }
   };
 
   // 10% chance of blockchain creating a
@@ -211,6 +176,7 @@ function Simulation() {
       ),
     ];
 
+    /*
     if (doesBranch()) {
       const concurrentMineInfo = blockSelected.mine(difficulty);
 
@@ -223,7 +189,7 @@ function Simulation() {
           blockBodyRef.current.value
         )
       );
-    }
+    }*/
 
     // Change selection to block added last
     setBlockSelected(blocksToAdd[blocksToAdd.length - 1]);
@@ -275,6 +241,7 @@ function Simulation() {
             constraintRef={constraintRef}
             blockchain={blockchain}
             handleClick={handleClick}
+            blockSelected={blockSelected}
           />
         </motion.svg>
       </div>
