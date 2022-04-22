@@ -67,26 +67,26 @@ class Blockchain {
     let newBlocks = this.blocks;
 
     // Find block with specified previous hash
-    let index = newBlocks.findIndex(
-      (block) => block.prevHash === prevHash && block.type !== "genesis"
-    );
+    let index = newBlocks.findIndex((block) => block.prevHash === prevHash);
 
-    // Mark every successor of the unverified block as orphan
-    let nextBlocks = [newBlocks[index]];
-    while (nextBlocks.length !== 0) {
-      for (const possibleOrphan of newBlocks) {
-        if (
-          nextBlocks[0].hash(possibleOrphan.nonce) === possibleOrphan.prevHash
-        ) {
-          nextBlocks.push(possibleOrphan);
+    if (newBlocks[index].type !== "genesis") {
+      // Mark every successor of the unverified block as orphan
+      let nextBlocks = [newBlocks[index]];
+      while (nextBlocks.length !== 0) {
+        for (const possibleOrphan of newBlocks) {
+          if (
+            nextBlocks[0].hash(possibleOrphan.nonce) === possibleOrphan.prevHash
+          ) {
+            nextBlocks.push(possibleOrphan);
+          }
         }
-      }
 
-      index = newBlocks.findIndex(
-        (block) => block.prevHash === nextBlocks[0].prevHash
-      );
-      newBlocks[index].type = "orphan";
-      nextBlocks.shift();
+        index = newBlocks.findIndex(
+          (block) => block.prevHash === nextBlocks[0].prevHash
+        );
+        newBlocks[index].type = "orphan";
+        nextBlocks.shift();
+      }
     }
 
     return new Blockchain(newBlocks);

@@ -3,6 +3,10 @@ import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { Block, Blockchain } from "./Blockchain";
 
+// TODO:
+// console
+// alert when attempting to unverify genesis
+
 function BlockComponent(props) {
   // Block fill based on block type
   let color = "white";
@@ -21,7 +25,7 @@ function BlockComponent(props) {
         y={props.y}
         fill={color}
         stroke={
-          props.blockSelected.prevHash === props.prevHash ? "green" : "black"
+          props.blockSelected?.prevHash === props.prevHash ? "green" : "black"
         }
         strokeWidth="5px"
       ></motion.rect>
@@ -122,7 +126,6 @@ function Simulation() {
   // in binary representation
   const [difficulty, setDifficulty] = useState(2);
   const [blockchain, setBlockchain] = useState(new Blockchain());
-  const [orphanMode, setOrphanMode] = useState(false);
 
   // The block we are pointing at
   const [blockSelected, setBlockSelected] = useState(blockchain.blocks[0]);
@@ -130,16 +133,7 @@ function Simulation() {
   const constraintRef = useRef(null);
   const blockBodyRef = useRef(null);
 
-  // Method passed to each block
-  // if orphan mode, then orphan the block
-  // else, select it
   const handleClick = (e, prevHash) => {
-    if (orphanMode) {
-      setOrphanMode(false);
-      setBlockchain(blockchain.orphanBlock(prevHash));
-      return;
-    }
-
     // If double clicked and not an orphan, select
     const tempBlock = blockchain.blocks.find(
       (block) => block.prevHash === prevHash
@@ -164,6 +158,8 @@ function Simulation() {
   // and temporary blocks
   const handleAddBlock = (event) => {
     event.preventDefault();
+
+    if (blockSelected === null) return;
 
     const mineInfo = blockSelected.mine(difficulty);
     let blocksToAdd = [
@@ -210,7 +206,14 @@ function Simulation() {
           />
           <input type="submit" value="Add block" onClick={handleAddBlock} />
         </form>
-        <button onClick={() => setOrphanMode(true)}>Orphan block</button>
+        <button
+          onClick={() => {
+            setBlockchain(blockchain.orphanBlock(blockSelected.prevHash));
+            setBlockSelected(null);
+          }}
+        >
+          Unverify block
+        </button>
         <form className={styles.simulation_toolbar_difficulty}>
           <label for="difficulty">Difficulty:</label>
           <input
