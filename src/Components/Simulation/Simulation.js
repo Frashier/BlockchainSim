@@ -6,6 +6,8 @@ import { Block, Blockchain } from "./Blockchain";
 // TODO:
 // console
 // alert when attempting to unverify genesis
+// can branch only at the end of the branch (alert when attempting otherwise)
+// change orphaning to be automatic?'
 
 function BlockComponent(props) {
   // Block fill based on block type
@@ -52,8 +54,8 @@ function BlockComponent(props) {
 
 // TODO: button to see details of a block
 function BlockchainComponent(props) {
-  const blockWidth = "180";
-  const blockHeight = "180";
+  const blockWidth = 180;
+  const blockHeight = 180;
 
   // The algorithm below loops through the whole blockchain twice
   // assigning coordinates to corresponding blocks by increasing
@@ -63,16 +65,17 @@ function BlockchainComponent(props) {
   // the y coordinate gets increased as every block found
   // after the first one indicates branching took place
 
+  // Initiate blocksAndCoords with the genesis block
   const blocks = props.blockchain.blocks.slice();
   let blocksAndCoords = [{ block: blocks[0], x: 0, y: 0 }];
 
-  // TODO: optimize
   for (let i = 0; i < blocks.length; i++) {
     const currentBlock = blocksAndCoords.find(
       (object) => object.block.prevHash === blocks[i].prevHash
     );
     let tempY = currentBlock.y;
 
+    let isFirstInBranch = true; // Used to draw vertical lines
     for (let j = 1; j < blocks.length; j++) {
       const possibleBlock = blocks[j];
 
@@ -83,7 +86,9 @@ function BlockchainComponent(props) {
           block: possibleBlock,
           x: currentBlock.x + 2 * blockWidth,
           y: tempY,
+          isFirst: isFirstInBranch,
         });
+        isFirstInBranch = false;
         tempY += 2 * blockHeight;
       }
     }
@@ -104,16 +109,46 @@ function BlockchainComponent(props) {
     <motion.g drag dragConstraints={props.constraintRef}>
       {blocksAndCoords.map((blockAndCoords) => {
         return (
-          <BlockComponent
-            key={blockAndCoords.block.prevHash}
-            {...blockAndCoords.block}
-            blockSelected={props.blockSelected}
-            handleClick={props.handleClick}
-            blockWidth={blockWidth}
-            blockHeight={blockHeight}
-            x={blockAndCoords.x}
-            y={blockAndCoords.y}
-          />
+          <motion.g key={blockAndCoords.block.prevHash}>
+            {blockAndCoords.block.type !== "genesis" && (
+              <motion.line
+                x1={blockAndCoords.x}
+                y1={blockAndCoords.y + blockHeight / 2}
+                x2={blockAndCoords.x - blockWidth / 2}
+                y2={blockAndCoords.y + blockHeight / 2}
+                stroke="black"
+                strokeWidth="5px"
+              />
+            )}
+            <motion.line
+              x1={blockAndCoords.x + blockWidth}
+              y1={blockAndCoords.y + blockHeight / 2}
+              x2={blockAndCoords.x + blockWidth * 1.5}
+              y2={blockAndCoords.y + blockHeight / 2}
+              stroke="black"
+              strokeWidth="5px"
+            />
+            {!blockAndCoords.isFirst &&
+              blockAndCoords.block.type !== "genesis" && (
+                <motion.line
+                  x1={blockAndCoords.x - blockWidth / 2}
+                  y1={blockAndCoords.y + blockHeight / 2}
+                  x2={blockAndCoords.x - blockWidth / 2}
+                  y2={blockAndCoords.y - blockHeight * 1.5}
+                  stroke="black"
+                  strokeWidth="5px"
+                />
+              )}
+            <BlockComponent
+              {...blockAndCoords.block}
+              blockSelected={props.blockSelected}
+              handleClick={props.handleClick}
+              blockWidth={blockWidth}
+              blockHeight={blockHeight}
+              x={blockAndCoords.x}
+              y={blockAndCoords.y}
+            />
+          </motion.g>
         );
       })}
     </motion.g>
@@ -143,54 +178,41 @@ function Simulation() {
     }
   };
 
-  // 10% chance of blockchain creating a
-  // concurrent path
-  const doesBranch = () => Math.random() < 0.1;
-
   // Proccess of adding a block is as follows:
-  // 1. Get hash of the block we are pointing at
+  // 1. Check if it's possible to add block to the selected one
+  // 2. Get hash of the block we are pointing at
   // accompanied by the nonce based on the difficulty
   // (by default block added last is selected)
-  // 2. Add the block to temporary array
-  // 3. Randomly decide whether a new concurrent block
-  // should be added, if so then repeat 1. and 2. on it
-  // 4. Create a new blockchain by appending existing blocks
-  // and temporary blocks
+  // 3. Create a new blockchain by adding the block
+  // to the current blockchain
   const handleAddBlock = (event) => {
     event.preventDefault();
 
     if (blockSelected === null) return;
 
+    // Check if the block is at the end of the blockchain
+    console.log(blockchain.getHead());
+
+    // TODO:  handle
+    if (
+      !blockchain
+        .getHead()
+        .find((block) => block?.prevHash === blockSelected.prevHash)
+    ) {
+      return;
+    }
     const mineInfo = blockSelected.mine(difficulty);
-    let blocksToAdd = [
-      new Block(
-        "normal",
-        mineInfo.hash,
-        Date.now(),
-        mineInfo.nonce,
-        blockBodyRef.current.value
-      ),
-    ];
-
-    /*
-    if (doesBranch()) {
-      const concurrentMineInfo = blockSelected.mine(difficulty);
-
-      blocksToAdd.push(
-        new Block(
-          "normal",
-          concurrentMineInfo.hash,
-          Date.now(),
-          concurrentMineInfo.nonce,
-          blockBodyRef.current.value
-        )
-      );
-    }*/
-
+    const block = new Block(
+      "normal",
+      mineInfo.hash,
+      Date.now(),
+      mineInfo.nonce,
+      blockBodyRef.current.value
+    );
     // Change selection to block added last
-    setBlockSelected(blocksToAdd[blocksToAdd.length - 1]);
+    setBlockSelected(block);
 
-    setBlockchain(new Blockchain([...blockchain.blocks, ...blocksToAdd]));
+    setBlockchain(new Blockchain([...blockchain.blocks, block]));
   };
 
   return (
@@ -213,6 +235,9 @@ function Simulation() {
           }}
         >
           Unverify block
+        </button>
+        <button onClick={() => setBlockchain(blockchain.clearOrphans())}>
+          Clear
         </button>
         <form className={styles.simulation_toolbar_difficulty}>
           <label for="difficulty">Difficulty:</label>

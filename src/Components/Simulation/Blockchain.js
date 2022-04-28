@@ -63,6 +63,8 @@ class Blockchain {
     } else this.blocks = blocks;
   }
 
+  // Make every block an orphan starting from
+  // an unverified block
   orphanBlock(prevHash) {
     let newBlocks = this.blocks;
 
@@ -90,6 +92,55 @@ class Blockchain {
     }
 
     return new Blockchain(newBlocks);
+  }
+
+  clearOrphans() {
+    return new Blockchain(
+      this.blocks.filter((block) => block.type !== "orphan")
+    );
+  }
+
+  // Return blocks which don't have a successor
+  getHead() {
+    if (this.blocks.length == 1) {
+      return [this.blocks[0]];
+    }
+
+    let head = [];
+    let previousBlock;
+    for (let i = 0; i < this.blocks.length; i++) {
+      const currentBlock = this.blocks[i];
+      if (currentBlock.type === "orphan") {
+        continue;
+      }
+      let successorFound = false;
+
+      for (let j = 1; j < this.blocks.length; j++) {
+        const possibleSuccessor = this.blocks[j];
+        if (possibleSuccessor.type === "orphan") {
+          continue;
+        }
+
+        if (
+          currentBlock.hash(possibleSuccessor.nonce) ===
+          possibleSuccessor.prevHash
+        ) {
+          previousBlock = currentBlock;
+          successorFound = true;
+
+          break;
+        }
+      }
+
+      // If a successor hasn't been found
+      // mark the previous block and current block as head
+      if (!successorFound) {
+        head.push(previousBlock);
+        head.push(currentBlock);
+      }
+    }
+    // Return head without duplicates
+    return [...new Map(head.map((block) => [block?.prevHash, block])).values()];
   }
 
   addBlock(block) {
