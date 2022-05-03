@@ -1,19 +1,20 @@
 import styles from "./Simulation.module.css";
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Block, Blockchain } from "./Blockchain";
+import { Block, Blockchain, BlockType } from "./Blockchain";
 
 // TODO:
 // console
 // alert when attempting to unverify genesis
 // can branch only at the end of the branch (alert when attempting otherwise)
-// change orphaning to be automatic?'
+// change orphaning to be automatic?
+// fix different animation hover when cleared orphans
 
 function BlockComponent(props) {
   // Block fill based on block type
   let color = "white";
-  if (props.type === "genesis") color = "#a23ad6";
-  else if (props.type === "orphan") color = "#929dac";
+  if (props.type === BlockType.Genesis) color = "#a23ad6";
+  else if (props.type === BlockType.Orphan) color = "#929dac";
 
   return (
     <motion.g
@@ -57,6 +58,10 @@ function BlockchainComponent(props) {
   const blockWidth = 180;
   const blockHeight = 180;
 
+  // Initiate blocksAndCoords with the genesis block
+  const blocks = props.blockchain.blocks.slice();
+  let blocksAndCoords = [{ block: blocks[0], x: 0, y: 0 }];
+
   // The algorithm below loops through the whole blockchain twice
   // assigning coordinates to corresponding blocks by increasing
   // the coordinates of the previous block by a fixed amount
@@ -65,15 +70,12 @@ function BlockchainComponent(props) {
   // the y coordinate gets increased as every block found
   // after the first one indicates branching took place
 
-  // Initiate blocksAndCoords with the genesis block
-  const blocks = props.blockchain.blocks.slice();
-  let blocksAndCoords = [{ block: blocks[0], x: 0, y: 0 }];
-
+  let yOffset = 0;
   for (let i = 0; i < blocks.length; i++) {
     const currentBlock = blocksAndCoords.find(
       (object) => object.block.prevHash === blocks[i].prevHash
     );
-    let tempY = currentBlock.y;
+    let yTemp = currentBlock.y;
 
     let isFirstInBranch = true; // Used to draw vertical lines
     for (let j = 1; j < blocks.length; j++) {
@@ -85,32 +87,21 @@ function BlockchainComponent(props) {
         blocksAndCoords.push({
           block: possibleBlock,
           x: currentBlock.x + 2 * blockWidth,
-          y: tempY,
+          y: yTemp,
           isFirst: isFirstInBranch,
         });
         isFirstInBranch = false;
-        tempY += 2 * blockHeight;
+        yTemp += 2 * blockHeight;
       }
     }
   }
 
-  /*
-            <motion.line
-              x1={x}
-              y1={blockHeight / 2}
-              x2={x - blockWidth}
-              y2={blockHeight / 2}
-              stroke="black"
-              strokeWidth="5px"
-            />
-          </motion.g>
-*/
   return (
     <motion.g drag dragConstraints={props.constraintRef}>
       {blocksAndCoords.map((blockAndCoords) => {
         return (
           <motion.g key={blockAndCoords.block.prevHash}>
-            {blockAndCoords.block.type !== "genesis" && (
+            {blockAndCoords.block.type !== BlockType.Genesis && (
               <motion.line
                 x1={blockAndCoords.x}
                 y1={blockAndCoords.y + blockHeight / 2}
@@ -129,7 +120,7 @@ function BlockchainComponent(props) {
               strokeWidth="5px"
             />
             {!blockAndCoords.isFirst &&
-              blockAndCoords.block.type !== "genesis" && (
+              blockAndCoords.block.type !== BlockType.Genesis && (
                 <motion.line
                   x1={blockAndCoords.x - blockWidth / 2}
                   y1={blockAndCoords.y + blockHeight / 2}
@@ -173,7 +164,7 @@ function Simulation() {
     const tempBlock = blockchain.blocks.find(
       (block) => block.prevHash === prevHash
     );
-    if (e.detail === 2 && tempBlock.type !== "orphan") {
+    if (e.detail === 2 && tempBlock.type !== BlockType.Orphan) {
       setBlockSelected(tempBlock);
     }
   };
@@ -190,9 +181,6 @@ function Simulation() {
 
     if (blockSelected === null) return;
 
-    // Check if the block is at the end of the blockchain
-    console.log(blockchain.getHead());
-
     // TODO:  handle
     if (
       !blockchain
@@ -203,7 +191,7 @@ function Simulation() {
     }
     const mineInfo = blockSelected.mine(difficulty);
     const block = new Block(
-      "normal",
+      BlockType.Regular,
       mineInfo.hash,
       Date.now(),
       mineInfo.nonce,

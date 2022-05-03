@@ -9,14 +9,47 @@ function getRandomInt(max) {
   return Math.floor(Math.random() * max);
 }
 
+// Enum representing all possible block types.
+// Block types are used as a helper variable in
+// Block instances to determine what kind of
+// interactions are possible with them
+class BlockType {
+  static Orphan = new BlockType("orphan");
+  static Genesis = new BlockType("genesis");
+  static Regular = new BlockType("regular");
+  static Head = new BlockType("head");
+
+  constructor(type) {
+    this.type = type;
+  }
+
+  valueOf() {
+    return this.type;
+  }
+
+  toString() {
+    return `BlockType.${this.type}`;
+  }
+}
+
 class Block {
   constructor(type, prevHash, timestamp, nonce, body) {
-    this.type = type;
+    this.type = type; // Helper variable for simulation implementation
     this.prevHash = prevHash;
     this.timestamp = timestamp;
     this.nonce = nonce;
     this.body = body;
     this.maxNonce = 1000000;
+  }
+
+  changeType(type) {
+    return new Block(
+      type,
+      this.prevHash,
+      this.timestamp,
+      this.nonce,
+      this.body
+    );
   }
 
   hash(nonce) {
@@ -59,7 +92,7 @@ class Block {
 class Blockchain {
   constructor(blocks) {
     if (blocks === undefined) {
-      this.blocks = [new Block("genesis", 0, Date.now(), 0, "genesis")];
+      this.blocks = [new Block(BlockType.Genesis, 0, Date.now(), 0, "genesis")];
     } else this.blocks = blocks;
   }
 
@@ -71,8 +104,8 @@ class Blockchain {
     // Find block with specified previous hash
     let index = newBlocks.findIndex((block) => block.prevHash === prevHash);
 
-    if (newBlocks[index].type !== "genesis") {
-      // Mark every successor of the unverified block as orphan
+    if (newBlocks[index].type !== BlockType.Genesis) {
+      // Mark every child of the unverified block as orphan
       let nextBlocks = [newBlocks[index]];
       while (nextBlocks.length !== 0) {
         for (const possibleOrphan of newBlocks) {
@@ -86,7 +119,7 @@ class Blockchain {
         index = newBlocks.findIndex(
           (block) => block.prevHash === nextBlocks[0].prevHash
         );
-        newBlocks[index].type = "orphan";
+        newBlocks[index] = newBlocks[index].changeType(BlockType.Orphan);
         nextBlocks.shift();
       }
     }
@@ -96,51 +129,49 @@ class Blockchain {
 
   clearOrphans() {
     return new Blockchain(
-      this.blocks.filter((block) => block.type !== "orphan")
+      this.blocks.filter((block) => block.type !== BlockType.Orphan)
     );
   }
 
-  // Return blocks which don't have a successor
+  getChildren(block) {
+    return this.blocks.filter(
+      (tempBlock) => block.hash(tempBlock.nonce) === tempBlock.prevHash
+    );
+  }
+
+  // Return blocks which don't have a child
   getHead() {
     if (this.blocks.length == 1) {
       return [this.blocks[0]];
     }
 
     let head = [];
-    let previousBlock;
     for (let i = 0; i < this.blocks.length; i++) {
       const currentBlock = this.blocks[i];
-      if (currentBlock.type === "orphan") {
+      if (currentBlock.type === BlockType.Orphan) {
         continue;
       }
-      let successorFound = false;
 
-      for (let j = 1; j < this.blocks.length; j++) {
-        const possibleSuccessor = this.blocks[j];
-        if (possibleSuccessor.type === "orphan") {
-          continue;
-        }
-
-        if (
-          currentBlock.hash(possibleSuccessor.nonce) ===
-          possibleSuccessor.prevHash
-        ) {
-          previousBlock = currentBlock;
-          successorFound = true;
-
-          break;
+      // For every children of the current block,
+      // if child doesn't have children, remove it
+      // from the list
+      let children = this.getChildren(currentBlock);
+      for (const child of children) {
+        if (this.getChildren(child).length === 0) {
+          children = children.filter((c) => c.prevHash !== child.prevHash);
         }
       }
 
-      // If a successor hasn't been found
-      // mark the previous block and current block as head
-      if (!successorFound) {
-        head.push(previousBlock);
+      // If the list of children isn't empty
+      // then some of them contain children of
+      // their own, hence you can't add blocks
+      // to the current block
+      if (children.length === 0) {
         head.push(currentBlock);
       }
     }
-    // Return head without duplicates
-    return [...new Map(head.map((block) => [block?.prevHash, block])).values()];
+
+    return head;
   }
 
   addBlock(block) {
@@ -148,4 +179,4 @@ class Blockchain {
   }
 }
 
-export { Blockchain, Block };
+export { Blockchain, Block, BlockType };
