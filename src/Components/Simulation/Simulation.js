@@ -1,5 +1,5 @@
 import styles from "./Simulation.module.css";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Block, Blockchain, BlockType } from "./Blockchain";
 
@@ -177,11 +177,15 @@ function Simulation() {
   // The block we are pointing at
   const [blockSelected, setBlockSelected] = useState(blockchain.blocks[0]);
 
+  // State storing console output
+  const [consoleData, setConsoleData] = useState("");
+
   const svgRef = useRef(null);
   const blockBodyRef = useRef(null);
+  const consoleBottomRef = useRef(null);
 
+  // Handling double clicking on blocks
   const handleClick = (e, prevHash) => {
-    // If double clicked and not an orphan, select
     const tempBlock = blockchain.blocks.find(
       (block) => block.prevHash === prevHash
     );
@@ -190,10 +194,29 @@ function Simulation() {
     }
   };
 
-  const handleClear = (event) => {
-    svgRef.current.state.x = 0;
-    svgRef.current.state.y = 0;
+  // Method used for writting to console.
+  // Passed to block class in order to display info about
+  // mining
+  const writeToConsole = (msg) => {
+    const date = new Date();
+    const timeString =
+      ("0" + date.getHours()).slice(-2) +
+      ":" +
+      ("0" + date.getMinutes()).slice(-2) +
+      ":" +
+      ("0" + date.getSeconds()).slice(-2);
+
+    // Used an arrow function so that the console
+    // updates every time new message is written
+    setConsoleData((data) => data + `[${timeString}]: ${msg}\n`);
+
+    //consoleBottomRef.current.scrollIntoView({ behavior: "smooth" });
+  };
+  Block.outputMethod = writeToConsole;
+
+  const handleClear = () => {
     setBlockchain(blockchain.clearOrphans());
+    writeToConsole("Cleared.");
   };
 
   // Proccess of adding a block is as follows:
@@ -206,7 +229,10 @@ function Simulation() {
   const handleAddBlock = (event) => {
     event.preventDefault();
 
-    if (blockSelected === null) return;
+    if (blockSelected === null) {
+      writeToConsole("No block selected.");
+      return;
+    }
 
     // TODO:  handle
     if (
@@ -216,6 +242,7 @@ function Simulation() {
     ) {
       return;
     }
+
     const mineInfo = blockSelected.mine(difficulty);
     const block = new Block(
       BlockType.Regular,
@@ -286,7 +313,10 @@ function Simulation() {
           />
         </motion.svg>
       </div>
-      <div className={styles.simulation_console}>console</div>
+      <pre className={styles.simulation_console}>
+        {consoleData}
+        <div ref={consoleBottomRef} />
+      </pre>
     </>
   );
 }

@@ -33,6 +33,8 @@ class BlockType {
 }
 
 class Block {
+  static outputMethod = (msg) => {}; // Used to display events in components
+
   constructor(type, prevHash, timestamp, nonce, body) {
     this.type = type; // Helper variable for simulation implementation
     this.prevHash = prevHash;
@@ -70,8 +72,10 @@ class Block {
   // chance to add 2 blocks
   mine(difficulty) {
     let info = { hash: "", nonce: getRandomInt(this.maxNonce) };
-
+    Block.outputMethod("Starting mining...");
     while (true) {
+      Block.outputMethod(`Trying nonce = ${info.nonce}...`);
+
       info.hash = this.hash(info.nonce);
 
       // SHA1 algorithm has size of 160 bits.
@@ -80,7 +84,11 @@ class Block {
       // The difference between SHA1 hash bit count
       // and the difficulty level is the position of the
       // first non-zero bit starting from the most significant one
-      if (hex2bin(info.hash).length <= 160 - difficulty) return info;
+      if (hex2bin(info.hash).length <= 160 - difficulty) {
+        Block.outputMethod(`Success`);
+        return info;
+      }
+      Block.outputMethod("Failure");
 
       info.nonce = getRandomInt(this.maxNonce);
     }
