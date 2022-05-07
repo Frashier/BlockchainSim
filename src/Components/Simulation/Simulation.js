@@ -210,11 +210,11 @@ function Simulation() {
     // updates every time new message is written
     setConsoleData((data) => data + `[${timeString}]: ${msg}\n`);
 
-    //consoleBottomRef.current.scrollIntoView({ behavior: "smooth" });
+    consoleBottomRef.current.scrollIntoView({ behavior: "smooth" });
   };
   Block.outputMethod = writeToConsole;
 
-  const handleClear = () => {
+  const handleClearBlockchain = () => {
     setBlockchain(blockchain.clearOrphans());
     writeToConsole("Cleared.");
   };
@@ -259,42 +259,6 @@ function Simulation() {
 
   return (
     <>
-      <div className={styles.simulation_toolbar}>
-        <form className={styles.simulation_toolbar_body}>
-          <input
-            type="text"
-            ref={blockBodyRef}
-            id="body"
-            name="body"
-            placeholder="Block's body"
-          />
-          <input type="submit" value="Add block" onClick={handleAddBlock} />
-        </form>
-        <button
-          onClick={() => {
-            setBlockchain(blockchain.orphanBlock(blockSelected.prevHash));
-            setBlockSelected(null);
-          }}
-        >
-          Unverify block
-        </button>
-        <button onClick={handleClear}>Clear</button>
-        <form className={styles.simulation_toolbar_difficulty}>
-          <label for="difficulty">Difficulty:</label>
-          <input
-            min="0"
-            max="10"
-            placeholder="2"
-            type="number"
-            id="difficulty"
-            name="difficulty"
-            onChange={(event) => {
-              setDifficulty(event.target.value);
-            }}
-            required
-          />
-        </form>
-      </div>
       <div className={styles.simulation_scene}>
         <motion.svg
           width="100%"
@@ -313,10 +277,54 @@ function Simulation() {
           />
         </motion.svg>
       </div>
-      <pre className={styles.simulation_console}>
-        {consoleData}
-        <div ref={consoleBottomRef} />
-      </pre>
+      <div className={styles.simulation_toolbar}>
+        <div style={{ gridArea: "left-side" }}>
+          <form className={styles.simulation_toolbar_addblock}>
+            <div className={styles.simulation_toolbar_field}>
+              <label for="body">Block body:</label>
+              <input
+                type="text"
+                ref={blockBodyRef}
+                id="body"
+                name="body"
+                placeholder="Block's body"
+              />
+            </div>
+            <div className={styles.simulation_toolbar_field}>
+              <label for="difficulty">Difficulty:</label>
+              <input
+                min="0"
+                max="10"
+                placeholder="2"
+                type="number"
+                id="difficulty"
+                name="difficulty"
+                onChange={(event) => {
+                  setDifficulty(event.target.value);
+                }}
+                required
+              />
+            </div>
+            <input type="submit" value="Add block" onClick={handleAddBlock} />
+          </form>
+        </div>
+        <pre className={styles.simulation_console}>
+          {consoleData}
+          <div ref={consoleBottomRef} />
+        </pre>
+        <div style={{ gridArea: "right-side" }}>
+          <button
+            onClick={() => {
+              setBlockchain(blockchain.orphanBlock(blockSelected.prevHash));
+              setBlockSelected(null);
+            }}
+          >
+            Unverify block
+          </button>
+          <button onClick={handleClearBlockchain}>Clear Blockchain</button>
+          <button onClick={() => setConsoleData("")}>Clear Console</button>
+        </div>
+      </div>
     </>
   );
 }
