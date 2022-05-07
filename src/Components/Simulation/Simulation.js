@@ -15,12 +15,10 @@ function BlockComponent(props) {
   let color = "white";
   if (props.type === BlockType.Genesis) color = "#a23ad6";
   else if (props.type === BlockType.Orphan) color = "#929dac";
+  else if (props.type === BlockType.Head) color = "#b8424d";
 
   return (
-    <motion.g
-      whileHover={{ scale: 1.1 }}
-      className={styles.simulation_scene_block}
-    >
+    <motion.g className={styles.simulation_scene_block}>
       <motion.rect
         width={props.blockWidth}
         height={props.blockHeight}
@@ -69,28 +67,48 @@ function BlockchainComponent(props) {
   // Everytime the inner loop finds a corresponding block
   // the y coordinate gets increased as every block found
   // after the first one indicates branching took place
+  //
+  // In order to avoid overlap during "y" assignment, it is neccessary
+  // to check if the given y value is taken. If so, every blocksAndCoords
+  // element with element's y >= given y needs to be increased by 1 level.
 
-  let yOffset = 0;
+  const incrementYLevels = (y) => {
+    for (const block of blocksAndCoords) {
+      if (block.y >= y) {
+        block.y += 2 * blockHeight;
+      }
+    }
+  };
+
   for (let i = 0; i < blocks.length; i++) {
     const currentBlock = blocksAndCoords.find(
       (object) => object.block.prevHash === blocks[i].prevHash
     );
     let yTemp = currentBlock.y;
+    let isFirstInBranch = false;
 
-    let isFirstInBranch = true; // Used to draw vertical lines
     for (let j = 1; j < blocks.length; j++) {
       const possibleBlock = blocks[j];
 
       if (
         currentBlock.block.hash(possibleBlock.nonce) === possibleBlock.prevHash
       ) {
+        // Check if y is taken during branching
+        if (
+          yTemp !== currentBlock.y &&
+          blocksAndCoords.some((block) => block.y === yTemp)
+        ) {
+          incrementYLevels(yTemp);
+        }
+
         blocksAndCoords.push({
           block: possibleBlock,
           x: currentBlock.x + 2 * blockWidth,
           y: yTemp,
+          parentY: currentBlock.y,
           isFirst: isFirstInBranch,
         });
-        isFirstInBranch = false;
+        isFirstInBranch = true;
         yTemp += 2 * blockHeight;
       }
     }
@@ -101,6 +119,7 @@ function BlockchainComponent(props) {
       {blocksAndCoords.map((blockAndCoords) => {
         return (
           <motion.g key={blockAndCoords.block.prevHash}>
+            {/* Horizontal left line */}
             {blockAndCoords.block.type !== BlockType.Genesis && (
               <motion.line
                 x1={blockAndCoords.x}
@@ -111,6 +130,7 @@ function BlockchainComponent(props) {
                 strokeWidth="5px"
               />
             )}
+            {/* Horizontal right line */}
             <motion.line
               x1={blockAndCoords.x + blockWidth}
               y1={blockAndCoords.y + blockHeight / 2}
@@ -119,13 +139,14 @@ function BlockchainComponent(props) {
               stroke="black"
               strokeWidth="5px"
             />
-            {!blockAndCoords.isFirst &&
+            {/* Vertical line */}
+            {blockAndCoords.isFirst &&
               blockAndCoords.block.type !== BlockType.Genesis && (
                 <motion.line
                   x1={blockAndCoords.x - blockWidth / 2}
                   y1={blockAndCoords.y + blockHeight / 2}
                   x2={blockAndCoords.x - blockWidth / 2}
-                  y2={blockAndCoords.y - blockHeight * 1.5}
+                  y2={blockAndCoords.parentY + blockHeight / 2}
                   stroke="black"
                   strokeWidth="5px"
                 />
@@ -156,7 +177,7 @@ function Simulation() {
   // The block we are pointing at
   const [blockSelected, setBlockSelected] = useState(blockchain.blocks[0]);
 
-  const constraintRef = useRef(null);
+  const svgRef = useRef(null);
   const blockBodyRef = useRef(null);
 
   const handleClick = (e, prevHash) => {
@@ -167,6 +188,12 @@ function Simulation() {
     if (e.detail === 2 && tempBlock.type !== BlockType.Orphan) {
       setBlockSelected(tempBlock);
     }
+  };
+
+  const handleClear = (event) => {
+    svgRef.current.state.x = 0;
+    svgRef.current.state.y = 0;
+    setBlockchain(blockchain.clearOrphans());
   };
 
   // Proccess of adding a block is as follows:
@@ -224,9 +251,7 @@ function Simulation() {
         >
           Unverify block
         </button>
-        <button onClick={() => setBlockchain(blockchain.clearOrphans())}>
-          Clear
-        </button>
+        <button onClick={handleClear}>Clear</button>
         <form className={styles.simulation_toolbar_difficulty}>
           <label for="difficulty">Difficulty:</label>
           <input
@@ -251,16 +276,17 @@ function Simulation() {
           initial="hidden"
           animate="visible"
           style={{ objectFit: "fill" }}
-          ref={constraintRef}
+          ref={svgRef}
         >
           <BlockchainComponent
-            constraintRef={constraintRef}
+            constraintRef={svgRef}
             blockchain={blockchain}
             handleClick={handleClick}
             blockSelected={blockSelected}
           />
         </motion.svg>
       </div>
+      <div className={styles.simulation_console}>console</div>
     </>
   );
 }

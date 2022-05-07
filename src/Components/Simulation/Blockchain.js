@@ -139,23 +139,26 @@ class Blockchain {
     );
   }
 
-  // Return blocks which don't have a child
+  // Return array of blocks user can add new blocks to
   getHead() {
-    if (this.blocks.length == 1) {
+    // Return genesis if the length of the blockchain
+    // with orphans excluded == 1 (only genesis remains)
+    if (
+      this.blocks.filter((block) => block.type !== BlockType.Orphan).length == 1
+    ) {
       return [this.blocks[0]];
     }
 
     let head = [];
-    for (let i = 0; i < this.blocks.length; i++) {
-      const currentBlock = this.blocks[i];
-      if (currentBlock.type === BlockType.Orphan) {
+    for (const block of this.blocks) {
+      if (block.type === BlockType.Orphan) {
         continue;
       }
 
-      // For every children of the current block,
+      // For every child of the current block,
       // if child doesn't have children, remove it
       // from the list
-      let children = this.getChildren(currentBlock);
+      let children = this.getChildren(block);
       for (const child of children) {
         if (this.getChildren(child).length === 0) {
           children = children.filter((c) => c.prevHash !== child.prevHash);
@@ -167,7 +170,7 @@ class Blockchain {
       // their own, hence you can't add blocks
       // to the current block
       if (children.length === 0) {
-        head.push(currentBlock);
+        head.push(block);
       }
     }
 

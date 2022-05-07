@@ -1,6 +1,20 @@
 .simulation_scene {
   flex: 1 1 0%;
   overflow: hidden;
+  margin: 1%;
+  border: 2px solid black;
+  background-color: rgba(27, 33, 37, 0.6);
+}
+
+.simulation_console {
+  align-self: center;
+  margin: 1%;
+  background-color: rgba(27, 33, 37, 0.6);
+  color: white;
+  border: 2px solid black;
+  width: 40%;
+  height: 15%;
+  padding: 1%;
 }
 
 .simulation_toolbar {
@@ -11,12 +25,12 @@
 
 .simulation_toolbar_body {
   display: flex;
-  gap: 20px;
+  gap: 1vw;
 }
 
 .simulation_toolbar_difficulty {
   display: flex;
-  gap: 20px;
+  gap: 1vw;
 }
 
 .simulation_scene_block_text {
