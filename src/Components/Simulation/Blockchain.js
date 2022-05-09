@@ -9,6 +9,9 @@ function getRandomInt(max) {
   return Math.floor(Math.random() * max);
 }
 
+const SHA1_LENGTH = 160;
+const MAX_NONCE = 1000000;
+
 // Enum representing all possible block types.
 // Block types are used as a helper variable in
 // Block instances to determine what kind of
@@ -39,7 +42,6 @@ class Block {
     this.timestamp = timestamp;
     this.nonce = nonce;
     this.body = body;
-    this.maxNonce = 1000000;
   }
 
   changeType(type) {
@@ -67,9 +69,8 @@ class Block {
   // TODO:
   // verify block
   // verify blockchain
-  // chance to add 2 blocks
   tryMine(difficulty) {
-    let nonce = getRandomInt(this.maxNonce);
+    let nonce = getRandomInt(MAX_NONCE);
     let hash = this.hash(nonce);
 
     // SHA1 algorithm has size of 160 bits.
@@ -79,7 +80,7 @@ class Block {
     // and the difficulty level is the position of the
     // first non-zero bit starting from the most significant one
     // TODO: change 160 to const
-    if (hex2bin(hash).length > 160 - difficulty) {
+    if (hex2bin(hash).length > SHA1_LENGTH - difficulty) {
       hash = "";
     }
 
@@ -90,10 +91,12 @@ class Block {
 // TODO:
 // nonce and prevHash on genesis
 class Blockchain {
-  constructor(blocks) {
+  constructor(difficulty, blocks) {
     if (blocks === undefined) {
       this.blocks = [new Block(BlockType.Genesis, 0, Date.now(), 0, "genesis")];
     } else this.blocks = blocks;
+
+    this.difficulty = difficulty;
   }
 
   // Make every block an orphan starting from
@@ -137,6 +140,11 @@ class Blockchain {
     return this.blocks.filter(
       (tempBlock) => block.hash(tempBlock.nonce) === tempBlock.prevHash
     );
+  }
+
+  getMainLength() {
+    return this.blocks.filter((block) => block.type !== BlockType.Orphan)
+      .lengthg;
   }
 
   // Return array of blocks user can add new blocks to

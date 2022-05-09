@@ -9,7 +9,6 @@ import { Block, Blockchain, BlockType } from "./Blockchain";
 // change orphaning to be automatic?
 // show detailed info on block click
 // change body to tranasctions
-// number of mining attempt
 // move difficulty button
 // add multiple miners
 // branches cant be longer than 1, unverifying is automatic
@@ -174,11 +173,7 @@ function BlockchainComponent(props) {
 }
 
 function Simulation() {
-  // Value stored by the difficulty variable determines
-  // how many zeros must be at the start of the SHA1 160 bit hash
-  // in binary representation
-  const [difficulty, setDifficulty] = useState(2);
-  const [blockchain, setBlockchain] = useState(new Blockchain());
+  const [blockchain, setBlockchain] = useState(new Blockchain(2));
 
   // The block we are pointing at
   const [blockSelected, setBlockSelected] = useState(blockchain.blocks[0]);
@@ -256,7 +251,7 @@ function Simulation() {
     let attemptNumber = 1;
     do {
       writeToConsole(`Attempt #${attemptNumber}`);
-      mineInfo = blockSelected.tryMine(difficulty);
+      mineInfo = blockSelected.tryMine(blockchain.difficulty);
 
       if (!mineInfo.hash) {
         writeToConsole(`Failure for nonce = ${mineInfo.nonce}`);
@@ -274,7 +269,15 @@ function Simulation() {
     );
     setBlockSelected(blockAdded);
 
-    setBlockchain(new Blockchain([...blockchain.blocks, blockAdded]));
+    // Increase difficulty every 5 blocks
+    let difficulty = blockchain.difficulty;
+    if ((blockchain.getMainLength() + 1) % 5 === 0) difficulty++;
+    console.log(difficulty);
+
+    // TODO: undo button?
+    setBlockchain(
+      new Blockchain(difficulty, [...blockchain.blocks, blockAdded])
+    );
   };
 
   return (
@@ -308,21 +311,6 @@ function Simulation() {
                 id="body"
                 name="body"
                 placeholder="Block's body"
-              />
-            </div>
-            <div className={styles.simulation_toolbar_field}>
-              <label for="difficulty">Difficulty:</label>
-              <input
-                min="0"
-                max="10"
-                placeholder="2"
-                type="number"
-                id="difficulty"
-                name="difficulty"
-                onChange={(event) => {
-                  setDifficulty(event.target.value);
-                }}
-                required
               />
             </div>
             <input type="submit" value="Add block" onClick={handleAddBlock} />
