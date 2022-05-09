@@ -127,28 +127,29 @@ class Blockchain {
       }
     }
 
-    return new Blockchain(newBlocks);
+    return new Blockchain(this.difficulty, newBlocks);
   }
 
   clearOrphans() {
     return new Blockchain(
+      this.difficulty,
       this.blocks.filter((block) => block.type !== BlockType.Orphan)
     );
   }
 
-  getChildren(block) {
+  childrenOf(block) {
     return this.blocks.filter(
       (tempBlock) => block.hash(tempBlock.nonce) === tempBlock.prevHash
     );
   }
 
-  getMainLength() {
+  get mainBranchLength() {
     return this.blocks.filter((block) => block.type !== BlockType.Orphan)
-      .lengthg;
+      .length;
   }
 
   // Return array of blocks user can add new blocks to
-  getHead() {
+  get head() {
     // Return genesis if the length of the blockchain
     // with orphans excluded == 1 (only genesis remains)
     if (
@@ -166,9 +167,9 @@ class Blockchain {
       // For every child of the current block,
       // if child doesn't have children, remove it
       // from the list
-      let children = this.getChildren(block);
+      let children = this.childrenOf(block);
       for (const child of children) {
-        if (this.getChildren(child).length === 0) {
+        if (this.childrenOf(child).length === 0) {
           children = children.filter((c) => c.prevHash !== child.prevHash);
         }
       }

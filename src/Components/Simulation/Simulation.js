@@ -11,7 +11,7 @@ import { Block, Blockchain, BlockType } from "./Blockchain";
 // change body to tranasctions
 // move difficulty button
 // add multiple miners
-// branches cant be longer than 1, unverifying is automatic
+// ? branches cant be longer than 1, unverifying is automatic
 // increase difficulty based on main branch length
 // button to reset blockchain
 
@@ -216,9 +216,14 @@ function Simulation() {
     consoleBottomRef.current.scrollIntoView({ behavior: "smooth" });
   };
 
-  const handleClearBlockchain = () => {
+  const handleClearOrphans = () => {
     setBlockchain(blockchain.clearOrphans());
-    writeToConsole("Cleared.");
+    writeToConsole("Orphans cleared.");
+  };
+
+  const handleResetBlockchain = () => {
+    setBlockchain(new Blockchain(2));
+    writeToConsole("Blockchain reset");
   };
 
   // Proccess of adding a block is as follows:
@@ -239,9 +244,9 @@ function Simulation() {
     // TODO:  handle
     // Check if selected block is branchable
     if (
-      !blockchain
-        .getHead()
-        .find((block) => block?.prevHash === blockSelected.prevHash)
+      !blockchain.head.find(
+        (block) => block?.prevHash === blockSelected.prevHash
+      )
     ) {
       return;
     }
@@ -271,8 +276,10 @@ function Simulation() {
 
     // Increase difficulty every 5 blocks
     let difficulty = blockchain.difficulty;
-    if ((blockchain.getMainLength() + 1) % 5 === 0) difficulty++;
-    console.log(difficulty);
+    if ((blockchain.mainBranchLength + 1) % 5 === 0) {
+      difficulty++;
+      writeToConsole("Blockchain difficulty increased");
+    }
 
     // TODO: undo button?
     setBlockchain(
@@ -329,8 +336,9 @@ function Simulation() {
           >
             Unverify block
           </button>
-          <button onClick={handleClearBlockchain}>Clear Blockchain</button>
+          <button onClick={handleClearOrphans}>Clear Orphans</button>
           <button onClick={() => setConsoleData("")}>Clear Console</button>
+          <button onClick={handleResetBlockchain}>Reset Blockchain</button>
         </div>
       </div>
     </>
