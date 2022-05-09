@@ -4,11 +4,17 @@ import { motion } from "framer-motion";
 import { Block, Blockchain, BlockType } from "./Blockchain";
 
 // TODO:
-// console
 // alert when attempting to unverify genesis
-// can branch only at the end of the branch (alert when attempting otherwise)
+// alert when branching forbidden
 // change orphaning to be automatic?
-// fix different animation hover when cleared orphans
+// show detailed info on block click
+// change body to tranasctions
+// number of mining attempt
+// move difficulty button
+// add multiple miners
+// branches cant be longer than 1, unverifying is automatic
+// increase difficulty based on main branch length
+// button to reset blockchain
 
 function BlockComponent(props) {
   // Block fill based on block type
@@ -60,16 +66,16 @@ function BlockchainComponent(props) {
   const blocks = props.blockchain.blocks.slice();
   let blocksAndCoords = [{ block: blocks[0], x: 0, y: 0 }];
 
-  // The algorithm below loops through the whole blockchain twice
+  // The algorithm below loops through the whole blockchain
   // assigning coordinates to corresponding blocks by increasing
   // the coordinates of the previous block by a fixed amount
   //
   // Everytime the inner loop finds a corresponding block
-  // the y coordinate gets increased as every block found
-  // after the first one indicates branching took place
+  // the y coordinate gets increased because every block found
+  // after the first one indicates that branching took place
   //
   // In order to avoid overlap during "y" assignment, it is neccessary
-  // to check if the given y value is taken. If so, every blocksAndCoords
+  // to check if the given y value is already taken. If so, every blocksAndCoords
   // element with element's y >= given y needs to be increased by 1 level.
 
   const incrementYLevels = (y) => {
@@ -186,11 +192,12 @@ function Simulation() {
 
   // Handling double clicking on blocks
   const handleClick = (e, prevHash) => {
-    const tempBlock = blockchain.blocks.find(
-      (block) => block.prevHash === prevHash
-    );
-    if (e.detail === 2 && tempBlock.type !== BlockType.Orphan) {
-      setBlockSelected(tempBlock);
+    if (e.detail === 2) {
+      const tempBlock = blockchain.blocks.find(
+        (block) => block.prevHash === prevHash
+      );
+
+      if (tempBlock.type !== BlockType.Orphan) setBlockSelected(tempBlock);
     }
   };
 
@@ -206,13 +213,13 @@ function Simulation() {
       ":" +
       ("0" + date.getSeconds()).slice(-2);
 
-    // Used an arrow function so that the console
-    // updates every time new message is written
+    // Used an arrow function so that the state
+    // updates every time function is called
     setConsoleData((data) => data + `[${timeString}]: ${msg}\n`);
 
+    // TODO: fix not scrolling all the way down
     consoleBottomRef.current.scrollIntoView({ behavior: "smooth" });
   };
-  Block.outputMethod = writeToConsole;
 
   const handleClearBlockchain = () => {
     setBlockchain(blockchain.clearOrphans());
@@ -235,6 +242,7 @@ function Simulation() {
     }
 
     // TODO:  handle
+    // Check if selected block is branchable
     if (
       !blockchain
         .getHead()
@@ -243,18 +251,30 @@ function Simulation() {
       return;
     }
 
-    const mineInfo = blockSelected.mine(difficulty);
-    const block = new Block(
+    writeToConsole(`Starting mining...`);
+    let mineInfo;
+    let attemptNumber = 1;
+    do {
+      writeToConsole(`Attempt #${attemptNumber}`);
+      mineInfo = blockSelected.tryMine(difficulty);
+
+      if (!mineInfo.hash) {
+        writeToConsole(`Failure for nonce = ${mineInfo.nonce}`);
+      }
+      attemptNumber++;
+    } while (!mineInfo.hash);
+    writeToConsole(`Success for nonce = ${mineInfo.nonce}`);
+
+    const blockAdded = new Block(
       BlockType.Regular,
       mineInfo.hash,
       Date.now(),
       mineInfo.nonce,
       blockBodyRef.current.value
     );
-    // Change selection to block added last
-    setBlockSelected(block);
+    setBlockSelected(blockAdded);
 
-    setBlockchain(new Blockchain([...blockchain.blocks, block]));
+    setBlockchain(new Blockchain([...blockchain.blocks, blockAdded]));
   };
 
   return (

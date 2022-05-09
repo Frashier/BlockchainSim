@@ -8,7 +8,7 @@ body {
   background: rgb(27, 33, 37);
   background: linear-gradient(
     135deg,
-    rgba(27, 33, 37, 1) 63%,
+    rgba(27, 33, 37, 1) 50%,
     rgba(184, 66, 77, 1) 100%
   );
   padding: 0px;
@@ -23,6 +23,7 @@ body,
 #root,
 #root > div {
   height: 100vh;
+  overflow-y: hidden;
 }
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
