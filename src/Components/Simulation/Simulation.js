@@ -1,5 +1,5 @@
 import styles from "./Simulation.module.css";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { Block, Blockchain, BlockType } from "./Blockchain";
 
@@ -13,14 +13,28 @@ import { Block, Blockchain, BlockType } from "./Blockchain";
 // add multiple miners
 // ? branches cant be longer than 1, unverifying is automatic
 // increase difficulty based on main branch length
-// button to reset blockchain
 
 function BlockComponent(props) {
+  //const [inspectOpen, setInspectOpen] = useState(false);
+
   // Block fill based on block type
-  let color = "white";
-  if (props.type === BlockType.Genesis) color = "#a23ad6";
-  else if (props.type === BlockType.Orphan) color = "#929dac";
-  else if (props.type === BlockType.Head) color = "#b8424d";
+  let color;
+  switch (props.type) {
+    case BlockType.Genesis:
+      color = "#a23ad6";
+      break;
+
+    case BlockType.Orphan:
+      color = "#929dac";
+      break;
+
+    case BlockType.Head:
+      color = "#baa97b";
+      break;
+
+    default:
+      color = "white";
+  }
 
   return (
     <motion.g className={styles.simulation_scene_block}>
@@ -49,8 +63,18 @@ function BlockComponent(props) {
           {props.prevHash} <br /> {props.timestamp}
           <br /> {props.nonce}
         </div>
-        <hr style={{ border: "1px solid black" }} />
-        <div className={styles.simulation_scene_block_body}>{props.body}</div>
+        {/*<hr style={{ border: "1px solid black" }} />*/}
+        {/*<div className={styles.simulation_scene_block_body}>{props.body}</div>*/}
+        <button
+          className={styles.simluation_scene_block_button}
+          onClick={() => setInspectOpen(true)}
+        >
+          <img
+            style={{ maxWidth: "100%", maxHeight: "100%" }}
+            src="Assets/glass.png"
+            alt="Inspect"
+          />
+        </button>
       </foreignObject>
     </motion.g>
   );

@@ -58,9 +58,17 @@
   margin-bottom: 5px;
   padding: 10px;
 }
-
+/*
 .simulation_scene_block_body {
   margin-top: 5px;
   font-size: 15px;
   padding: 10px;
+}*/
+
+.simluation_scene_block_button {
+  width: 30px;
+  height: 30px;
+  margin: 10px;
+  background-color: var(--red);
+  border: 1px solid var(--dark);
 }

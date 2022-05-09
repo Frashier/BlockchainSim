@@ -9,8 +9,13 @@ function getRandomInt(max) {
   return Math.floor(Math.random() * max);
 }
 
+function sha1HexHash(toHash) {
+  return Hex.stringify(sha1(toHash));
+}
+
 const SHA1_LENGTH = 160;
 const MAX_NONCE = 1000000;
+const BLOCK_SIZE = 5;
 
 // Enum representing all possible block types.
 // Block types are used as a helper variable in
@@ -35,13 +40,36 @@ class BlockType {
   }
 }
 
+class Transaction {
+  constructor(index, timestamp) {
+    this.index = index;
+    this.timestamp = timestamp;
+    this.hash = sha1HexHash(this.index + this.timestamp);
+  }
+
+  static generateRandomTransactions(n) {
+    let txArray = [];
+    for (let i = 0; i < n; i++) {
+      txArray.push(new Transaction(i, Date.now()));
+    }
+    return txArray;
+  }
+
+  toString() {
+    return `${this.index}.\n${this.timestamp}\n${this.hash}`;
+  }
+}
+
 class Block {
-  constructor(type, prevHash, timestamp, nonce, body) {
+  constructor(type, prevHash, timestamp, nonce) {
     this.type = type; // Helper variable for simulation implementation
     this.prevHash = prevHash;
     this.timestamp = timestamp;
     this.nonce = nonce;
-    this.body = body;
+    this.body =
+      type === BlockType.Genesis
+        ? ""
+        : Transaction.generateRandomTransactions(BLOCK_SIZE).join("/n");
   }
 
   changeType(type) {
@@ -63,7 +91,7 @@ class Block {
       nonce
     ).toString();
 
-    return Hex.stringify(sha1(toHash));
+    return sha1HexHash(toHash);
   }
 
   // TODO:
