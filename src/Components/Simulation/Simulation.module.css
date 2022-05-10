@@ -31,14 +31,14 @@
   width: 100%;
   margin-bottom: 1%;
 }
-
-.simulation_toolbar_field {
+.simulation_toolbar_leftside {
+  grid-area: "left-side";
   display: flex;
-  flex-direction: column;
-  gap: 15px;
+  flex-direction: row;
+  align-items: center;
 }
 
-.simulation_toolbar_addblock {
+.simulation_toolbar_input {
   display: flex;
   flex-direction: row;
   gap: 10px;

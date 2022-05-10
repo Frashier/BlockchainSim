@@ -49,6 +49,8 @@ function BlockDetails(props) {
         <br />
         Type: {props.block.type.toString()}
         <br />
+        Miner: {props.block.miner}
+        <br />
         <hr />
         {props.block.transactions.map((tx) => {
           return (
@@ -170,8 +172,7 @@ function BlockchainComponent(props) {
     const currentBlock = blocksAndCoords.find(
       (object) => object.block.prevHash === blocks[i].prevHash
     );
-    console.log(blocksAndCoords);
-    console.log(blocks[i].prevHash);
+
     let yTemp = currentBlock.y;
     let isFirstInBranch = false;
 
@@ -264,8 +265,9 @@ function Simulation() {
   // State storing console output
   const [consoleData, setConsoleData] = useState("");
 
+  const [miner, setMiner] = useState("Undefined");
+
   const svgRef = useRef(null);
-  const blockBodyRef = useRef(null);
   const consoleBottomRef = useRef(null);
 
   // Handling double clicking on blocks
@@ -363,7 +365,7 @@ function Simulation() {
       mineInfo.hash,
       Date.now(),
       mineInfo.nonce,
-      blockBodyRef.current.value
+      miner
     );
     setBlockSelected(blockAdded);
 
@@ -401,19 +403,18 @@ function Simulation() {
         </motion.svg>
       </div>
       <div className={styles.simulation_toolbar}>
-        <div style={{ gridArea: "left-side" }}>
-          <form className={styles.simulation_toolbar_addblock}>
-            <div className={styles.simulation_toolbar_field}>
-              <label for="body">Block body:</label>
-              <input
-                type="text"
-                ref={blockBodyRef}
-                id="body"
-                name="body"
-                placeholder="Block's body"
-              />
-            </div>
-            <input type="submit" value="Add block" onClick={handleAddBlock} />
+        <div className={styles.simulation_toolbar_leftside}>
+          <form className={styles.simulation_toolbar_input}>
+            <input
+              type="text"
+              id="miner"
+              name="miner"
+              placeholder="Miner's name"
+              onChange={(e) => setMiner(e.target.value)}
+            />
+            <button type="submit" onClick={handleAddBlock}>
+              Add block{" "}
+            </button>
           </form>
         </div>
         <pre className={styles.simulation_console}>

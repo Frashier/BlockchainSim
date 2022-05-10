@@ -61,11 +61,12 @@ class Transaction {
 }
 
 class Block {
-  constructor(type, prevHash, timestamp, nonce, transactions) {
+  constructor(type, prevHash, timestamp, nonce, miner, transactions) {
     this.type = type; // Helper variable for simulation implementation
     this.prevHash = prevHash;
     this.timestamp = timestamp;
     this.nonce = nonce;
+    this.miner = miner;
 
     // Don't generate txs for genesis.
     // Generate txs for block if txs
@@ -85,6 +86,7 @@ class Block {
       this.prevHash,
       this.timestamp,
       this.nonce,
+      this.miner,
       this.transactions
     );
   }
