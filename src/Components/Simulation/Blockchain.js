@@ -36,7 +36,7 @@ class BlockType {
   }
 
   toString() {
-    return `BlockType.${this.type}`;
+    return `${this.type}`;
   }
 }
 
@@ -66,10 +66,10 @@ class Block {
     this.prevHash = prevHash;
     this.timestamp = timestamp;
     this.nonce = nonce;
-    this.body =
+    this.transactions =
       type === BlockType.Genesis
-        ? ""
-        : Transaction.generateRandomTransactions(BLOCK_SIZE).join("/n");
+        ? []
+        : Transaction.generateRandomTransactions(BLOCK_SIZE);
   }
 
   changeType(type) {
@@ -78,7 +78,7 @@ class Block {
       this.prevHash,
       this.timestamp,
       this.nonce,
-      this.body
+      this.transactions
     );
   }
 
@@ -86,7 +86,7 @@ class Block {
     const toHash = (
       this.prevHash +
       this.timestamp +
-      this.body +
+      this.transactions +
       this.nonce +
       nonce
     ).toString();

@@ -2,6 +2,7 @@ import styles from "./Simulation.module.css";
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { Block, Blockchain, BlockType } from "./Blockchain";
+import Modal from "react-modal";
 
 // TODO:
 // alert when attempting to unverify genesis
@@ -14,12 +15,64 @@ import { Block, Blockchain, BlockType } from "./Blockchain";
 // ? branches cant be longer than 1, unverifying is automatic
 // increase difficulty based on main branch length
 
+Modal.setAppElement(document.getElementById("root"));
+
+function BlockDetails(props) {
+  return (
+    <Modal
+      style={{
+        overlay: {
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "rgba(0, 0, 0, 0.7)",
+        },
+        content: {
+          top: "50%",
+          left: "50%",
+          right: "auto",
+          bottom: "auto",
+          marginRight: "-50%",
+          transform: "translate(-50%, -50%)",
+          backgroundColor: "#ffff",
+          border: "5px solid black",
+        },
+      }}
+      isOpen={props.isOpen}
+      onRequestClose={props.close}
+    >
+      <div>
+        Previous hash: {props.block.prevHash}
+        <br />
+        Timestamp: {props.block.timestamp}
+        <br />
+        Nonce: {props.block.nonce}
+        <br />
+        Type: {props.block.type.toString()}
+        <br />
+        <hr />
+        {props.block.transactions.map((tx) => {
+          return (
+            <li key={tx.index}>
+              Hash: {tx.hash}
+              <br />
+              Timestamp: {tx.timestamp}
+            </li>
+          );
+        })}
+      </div>
+    </Modal>
+  );
+}
+
 function BlockComponent(props) {
-  //const [inspectOpen, setInspectOpen] = useState(false);
+  const [inspectOpen, setInspectOpen] = useState(false);
 
   // Block fill based on block type
   let color;
-  switch (props.type) {
+  switch (props.block.type) {
     case BlockType.Genesis:
       color = "#a23ad6";
       break;
@@ -45,12 +98,14 @@ function BlockComponent(props) {
         y={props.y}
         fill={color}
         stroke={
-          props.blockSelected?.prevHash === props.prevHash ? "green" : "black"
+          props.blockSelected?.prevHash === props.block.prevHash
+            ? "green"
+            : "black"
         }
         strokeWidth="5px"
       ></motion.rect>
       <foreignObject
-        onClick={(e) => props.handleClick(e, props.prevHash)}
+        onClick={(e) => props.handleClick(e, props.block.prevHash)}
         width="176"
         height="135"
         x={props.x + 2}
@@ -60,14 +115,14 @@ function BlockComponent(props) {
         className={styles.simulation_scene_block_text}
       >
         <div className={styles.simulation_scene_block_header}>
-          {props.prevHash} <br /> {props.timestamp}
-          <br /> {props.nonce}
+          {props.block.prevHash} <br /> {props.block.timestamp}
+          <br /> {props.block.nonce}
         </div>
         {/*<hr style={{ border: "1px solid black" }} />*/}
         {/*<div className={styles.simulation_scene_block_body}>{props.body}</div>*/}
         <button
-          className={styles.simluation_scene_block_button}
           onClick={() => setInspectOpen(true)}
+          className={styles.simluation_scene_block_button}
         >
           <img
             style={{ maxWidth: "100%", maxHeight: "100%" }}
@@ -76,6 +131,11 @@ function BlockComponent(props) {
           />
         </button>
       </foreignObject>
+      <BlockDetails
+        block={props.block}
+        isOpen={inspectOpen}
+        close={() => setInspectOpen(false)}
+      />
     </motion.g>
   );
 }
@@ -181,7 +241,7 @@ function BlockchainComponent(props) {
                 />
               )}
             <BlockComponent
-              {...blockAndCoords.block}
+              block={blockAndCoords.block}
               blockSelected={props.blockSelected}
               handleClick={props.handleClick}
               blockWidth={blockWidth}
