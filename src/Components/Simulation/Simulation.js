@@ -8,9 +8,6 @@ import Modal from "react-modal";
 // alert when attempting to unverify genesis
 // alert when branching forbidden
 // change orphaning to be automatic?
-// show detailed info on block click
-// change body to tranasctions
-// move difficulty button
 // add multiple miners
 // ? branches cant be longer than 1, unverifying is automatic
 // increase difficulty based on main branch length
@@ -173,6 +170,8 @@ function BlockchainComponent(props) {
     const currentBlock = blocksAndCoords.find(
       (object) => object.block.prevHash === blocks[i].prevHash
     );
+    console.log(blocksAndCoords);
+    console.log(blocks[i].prevHash);
     let yTemp = currentBlock.y;
     let isFirstInBranch = false;
 
@@ -310,6 +309,15 @@ function Simulation() {
     writeToConsole("Blockchain reset");
   };
 
+  const handleUnverifyBlock = () => {
+    if (blockSelected.type === BlockType.Genesis) {
+      writeToConsole("Can't unverify a genesis block.");
+      return;
+    }
+    setBlockchain(blockchain.orphanBlock(blockSelected.prevHash));
+    setBlockSelected(null);
+  };
+
   // Proccess of adding a block is as follows:
   // 1. Check if it's possible to add block to the selected one
   // 2. Get hash of the block we are pointing at
@@ -332,6 +340,7 @@ function Simulation() {
         (block) => block?.prevHash === blockSelected.prevHash
       )
     ) {
+      writeToConsole("Can't branch from this block.");
       return;
     }
 
@@ -412,14 +421,7 @@ function Simulation() {
           <div ref={consoleBottomRef} />
         </pre>
         <div style={{ gridArea: "right-side" }}>
-          <button
-            onClick={() => {
-              setBlockchain(blockchain.orphanBlock(blockSelected.prevHash));
-              setBlockSelected(null);
-            }}
-          >
-            Unverify block
-          </button>
+          <button onClick={handleUnverifyBlock}>Unverify block</button>
           <button onClick={handleClearOrphans}>Clear Orphans</button>
           <button onClick={() => setConsoleData("")}>Clear Console</button>
           <button onClick={handleResetBlockchain}>Reset Blockchain</button>

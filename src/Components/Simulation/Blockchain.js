@@ -61,15 +61,22 @@ class Transaction {
 }
 
 class Block {
-  constructor(type, prevHash, timestamp, nonce) {
+  constructor(type, prevHash, timestamp, nonce, transactions) {
     this.type = type; // Helper variable for simulation implementation
     this.prevHash = prevHash;
     this.timestamp = timestamp;
     this.nonce = nonce;
-    this.transactions =
-      type === BlockType.Genesis
-        ? []
+
+    // Don't generate txs for genesis.
+    // Generate txs for block if txs
+    // haven't been passed in constructor.
+    if (type === BlockType.Genesis) {
+      this.transactions = [];
+    } else {
+      this.transactions = transactions
+        ? transactions
         : Transaction.generateRandomTransactions(BLOCK_SIZE);
+    }
   }
 
   changeType(type) {
@@ -135,24 +142,22 @@ class Blockchain {
     // Find block with specified previous hash
     let index = newBlocks.findIndex((block) => block.prevHash === prevHash);
 
-    if (newBlocks[index].type !== BlockType.Genesis) {
-      // Mark every child of the unverified block as orphan
-      let nextBlocks = [newBlocks[index]];
-      while (nextBlocks.length !== 0) {
-        for (const possibleOrphan of newBlocks) {
-          if (
-            nextBlocks[0].hash(possibleOrphan.nonce) === possibleOrphan.prevHash
-          ) {
-            nextBlocks.push(possibleOrphan);
-          }
+    // Mark every child of the unverified block as orphan
+    let nextBlocks = [newBlocks[index]];
+    while (nextBlocks.length !== 0) {
+      for (const possibleOrphan of newBlocks) {
+        if (
+          nextBlocks[0].hash(possibleOrphan.nonce) === possibleOrphan.prevHash
+        ) {
+          nextBlocks.push(possibleOrphan);
         }
-
-        index = newBlocks.findIndex(
-          (block) => block.prevHash === nextBlocks[0].prevHash
-        );
-        newBlocks[index] = newBlocks[index].changeType(BlockType.Orphan);
-        nextBlocks.shift();
       }
+
+      index = newBlocks.findIndex(
+        (block) => block.prevHash === nextBlocks[0].prevHash
+      );
+      newBlocks[index] = newBlocks[index].changeType(BlockType.Orphan);
+      nextBlocks.shift();
     }
 
     return new Blockchain(this.difficulty, newBlocks);
