@@ -13,6 +13,7 @@ import Modal from "react-modal";
 // fix console not scrolling all the way down
 // change how info is displayed on block
 // drop down menu for block with show details and unverify?
+// scroll to zoom
 
 Modal.setAppElement(document.getElementById("root"));
 
@@ -71,21 +72,6 @@ function BlockDetails(props) {
 function BlockComponent(props) {
   const [inspectOpen, setInspectOpen] = useState(false);
 
-  // Block fill based on block type
-  let color;
-  switch (props.block.type) {
-    case BlockType.Genesis:
-      color = "#a23ad6";
-      break;
-
-    case BlockType.Head:
-      color = "#baa97b";
-      break;
-
-    default:
-      color = "white";
-  }
-
   return (
     <motion.g
       className={
@@ -101,8 +87,9 @@ function BlockComponent(props) {
         ry="20"
         x={props.x}
         y={props.y}
-        fill-opacity={props.block.type === BlockType.Orphan ? 0.1 : 1}
-        fill={color}
+        strokeDasharray={props.block.branchable ? "4" : ""}
+        fillOpacity={props.block.type === BlockType.Orphan ? 0.1 : 1}
+        fill={props.block.type === BlockType.Genesis ? "#a23ad6" : "white"}
         stroke="black"
         strokeWidth="5px"
       ></motion.rect>
@@ -340,11 +327,7 @@ function Simulation() {
 
     // TODO:  handle
     // Check if selected block is branchable
-    if (
-      !blockchain.head.find(
-        (block) => block?.prevHash === blockSelected.prevHash
-      )
-    ) {
+    if (!blockSelected.branchable) {
       writeToConsole("Can't branch from this block.");
       return;
     }
@@ -364,7 +347,7 @@ function Simulation() {
     writeToConsole(`Success for nonce = ${mineInfo.nonce}`);
 
     const blockAdded = new Block(
-      BlockType.Regular,
+      BlockType.Head,
       mineInfo.hash,
       Date.now(),
       mineInfo.nonce,
@@ -372,17 +355,12 @@ function Simulation() {
     );
     setBlockSelected(blockAdded);
 
-    // Increase difficulty every 5 blocks
-    let difficulty = blockchain.difficulty;
-    if ((blockchain.mainBranchLength + 1) % 5 === 0) {
-      difficulty++;
+    const newBlockchain = blockchain.addBlock(blockAdded);
+    if (newBlockchain.difficulty > blockchain.difficulty) {
       writeToConsole("Blockchain difficulty increased");
     }
-
     // TODO: undo button?
-    setBlockchain(
-      new Blockchain(difficulty, [...blockchain.blocks, blockAdded])
-    );
+    setBlockchain(newBlockchain);
   };
 
   return (

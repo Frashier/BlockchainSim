@@ -61,12 +61,21 @@ class Transaction {
 }
 
 class Block {
-  constructor(type, prevHash, timestamp, nonce, miner, transactions) {
+  constructor(
+    type,
+    prevHash,
+    timestamp,
+    nonce,
+    miner,
+    transactions,
+    branchable = true
+  ) {
     this.type = type; // Helper variable for simulation implementation
     this.prevHash = prevHash;
     this.timestamp = timestamp;
     this.nonce = nonce;
     this.miner = miner;
+    this.branchable = branchable;
 
     // Don't generate txs for genesis.
     // Generate txs for block if txs
@@ -81,13 +90,18 @@ class Block {
   }
 
   changeType(type) {
+    if (this.type === BlockType.Genesis) {
+      return this;
+    }
+
     return new Block(
       type,
       this.prevHash,
       this.timestamp,
       this.nonce,
       this.miner,
-      this.transactions
+      this.transactions,
+      type === BlockType.Orphan ? false : this.branchable
     );
   }
 
@@ -178,51 +192,46 @@ class Blockchain {
     );
   }
 
+  // In order to calculate main branch length it is necessary to
+  // not count orphans and branchable blocks, as
+  // max amount of branches at the time of writting this comment
+  // is not defined
+  // To the length 2 is added because at every point in time
+  // at least 2 blocks are branchable even when there is only one
+  // branch
   get mainBranchLength() {
-    return this.blocks.filter((block) => block.type !== BlockType.Orphan)
-      .length;
-  }
-
-  // Return array of blocks user can add new blocks to
-  get head() {
-    // Return genesis if the length of the blockchain
-    // with orphans excluded == 1 (only genesis remains)
-    if (
-      this.blocks.filter((block) => block.type !== BlockType.Orphan).length == 1
-    ) {
-      return [this.blocks[0]];
-    }
-
-    let head = [];
-    for (const block of this.blocks) {
-      if (block.type === BlockType.Orphan) {
-        continue;
-      }
-
-      // For every child of the current block,
-      // if child doesn't have children, remove it
-      // from the list
-      let children = this.childrenOf(block);
-      for (const child of children) {
-        if (this.childrenOf(child).length === 0) {
-          children = children.filter((c) => c.prevHash !== child.prevHash);
-        }
-      }
-
-      // If the list of children isn't empty
-      // then some of them contain children of
-      // their own, hence you can't add blocks
-      // to the current block
-      if (children.length === 0) {
-        head.push(block);
-      }
-    }
-
-    return head;
+    return (
+      this.blocks.filter(
+        (block) => !block.branchable && block.type !== BlockType.Orphan
+      ).length + 2
+    );
   }
 
   addBlock(block) {
-    return new Blockchain([...this.blocks, block]);
+    const tempBlock = this.blocks.find(
+      (b) => block.prevHash === b.hash(block.nonce)
+    );
+    const unheadedBlock = this.blocks.find(
+      (b) => tempBlock.prevHash === b.hash(tempBlock.nonce)
+    );
+
+    let newBlocks = this.blocks.map((b) => {
+      if (b.prevHash === unheadedBlock?.prevHash) {
+        let temp = unheadedBlock.changeType(BlockType.Regular);
+        temp.branchable = false;
+        return temp;
+      }
+      return b;
+    });
+    newBlocks = [...newBlocks, block];
+
+    let difficulty = this.difficulty;
+    if ((this.mainBranchLength + 1) % 5 === 0) {
+      difficulty++;
+    }
+    console.log(this.mainBranchLength);
+
+    return new Blockchain(difficulty, newBlocks);
   }
 }
 
