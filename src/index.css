@@ -1,28 +1,44 @@
 body {
+  --dark: #1b2125;
+  --red: #b8424d;
+  --white: #fcfbfc;
+  --grey: #929dac;
+  --dark-grey: #272a31;
+
   margin: 0;
   font-family: "Montserrat", sans-serif;
-
+  background: radial-gradient(at bottom right, var(--red) 0%, var(--dark) 70%);
+  /*
   background: rgb(27, 33, 37);
   background: linear-gradient(
     135deg,
     rgba(27, 33, 37, 1) 40%,
     rgba(184, 66, 77, 1) 100%
-  );
+  );*/
   padding: 0px;
-
-  --dark: #1b2125;
-  --red: #b8424d;
-  --white: #fcfbfc;
-  --grey: #929dac;
 }
 html,
 body,
 #root,
 #root > div {
   height: 100vh;
-  overflow-y: hidden;
 }
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
+}
+
+.basic-button {
+  border-radius: 10px;
+  font-size: 20px;
+  padding: 10px;
+  border: none;
+  box-shadow: none;
+  color: var(--white);
+  background-color: var(--dark-grey);
+}
+
+.basic-button:hover {
+  transition: 0.5s;
+  background-color: var(--grey);
 }

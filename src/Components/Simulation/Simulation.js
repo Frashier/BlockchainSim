@@ -1,16 +1,18 @@
-import styles from "./Simulation.module.css";
+import "./Simulation.css";
+import "../../index.css";
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { Block, Blockchain, BlockType } from "./Blockchain";
 import Modal from "react-modal";
 
 // TODO:
-// alert when attempting to unverify genesis
-// alert when branching forbidden
 // change orphaning to be automatic?
-// add multiple miners
 // ? branches cant be longer than 1, unverifying is automatic
-// increase difficulty based on main branch length
+// ? increase difficulty based on main branch length
+// fix bug that double click counts only on center
+// fix console not scrolling all the way down
+// change how info is displayed on block
+// drop down menu for block with show details and unverify?
 
 Modal.setAppElement(document.getElementById("root"));
 
@@ -76,10 +78,6 @@ function BlockComponent(props) {
       color = "#a23ad6";
       break;
 
-    case BlockType.Orphan:
-      color = "#929dac";
-      break;
-
     case BlockType.Head:
       color = "#baa97b";
       break;
@@ -89,18 +87,23 @@ function BlockComponent(props) {
   }
 
   return (
-    <motion.g className={styles.simulation_scene_block}>
+    <motion.g
+      className={
+        props.blockSelected?.prevHash === props.block.prevHash
+          ? "simulation_scene_block--selected"
+          : "simulation_scene_block"
+      }
+    >
       <motion.rect
         width={props.blockWidth}
         height={props.blockHeight}
+        rx="20"
+        ry="20"
         x={props.x}
         y={props.y}
+        fill-opacity={props.block.type === BlockType.Orphan ? 0.1 : 1}
         fill={color}
-        stroke={
-          props.blockSelected?.prevHash === props.block.prevHash
-            ? "green"
-            : "black"
-        }
+        stroke="black"
         strokeWidth="5px"
       ></motion.rect>
       <foreignObject
@@ -111,17 +114,17 @@ function BlockComponent(props) {
         y={props.y}
         color="black"
         fontSize="10"
-        className={styles.simulation_scene_block_text}
+        className="simulation_scene_block_text"
       >
-        <div className={styles.simulation_scene_block_header}>
+        <div className="simulation_scene_block_header">
           {props.block.prevHash} <br /> {props.block.timestamp}
           <br /> {props.block.nonce}
         </div>
         {/*<hr style={{ border: "1px solid black" }} />*/}
-        {/*<div className={styles.simulation_scene_block_body}>{props.body}</div>*/}
+        {/*<div className="simulation_scene_block_body}>{props.body}</div>*/}
         <button
           onClick={() => setInspectOpen(true)}
-          className={styles.simluation_scene_block_button}
+          className="simluation_scene_block_button"
         >
           <img
             style={{ maxWidth: "100%", maxHeight: "100%" }}
@@ -384,7 +387,7 @@ function Simulation() {
 
   return (
     <>
-      <div className={styles.simulation_scene}>
+      <div className="simulation_scene">
         <motion.svg
           width="100%"
           height="100%"
@@ -402,30 +405,40 @@ function Simulation() {
           />
         </motion.svg>
       </div>
-      <div className={styles.simulation_toolbar}>
-        <div className={styles.simulation_toolbar_leftside}>
-          <form className={styles.simulation_toolbar_input}>
-            <input
-              type="text"
-              id="miner"
-              name="miner"
-              placeholder="Miner's name"
-              onChange={(e) => setMiner(e.target.value)}
-            />
-            <button type="submit" onClick={handleAddBlock}>
-              Add block{" "}
-            </button>
-          </form>
-        </div>
-        <pre className={styles.simulation_console}>
+      <div className="simulation_toolbar">
+        <form className="simulation_toolbar_leftside">
+          <input
+            type="text"
+            id="miner"
+            name="miner"
+            placeholder="Miner's name"
+            onChange={(e) => setMiner(e.target.value)}
+          />
+          <button
+            className="basic-button"
+            type="submit"
+            onClick={handleAddBlock}
+          >
+            Add block{" "}
+          </button>
+        </form>
+        <pre className="simulation_console">
           {consoleData}
           <div ref={consoleBottomRef} />
         </pre>
-        <div style={{ gridArea: "right-side" }}>
-          <button onClick={handleUnverifyBlock}>Unverify block</button>
-          <button onClick={handleClearOrphans}>Clear Orphans</button>
-          <button onClick={() => setConsoleData("")}>Clear Console</button>
-          <button onClick={handleResetBlockchain}>Reset Blockchain</button>
+        <div className="simulation_toolbar_rightside">
+          <button className="basic-button" onClick={handleUnverifyBlock}>
+            Unverify block
+          </button>
+          <button className="basic-button" onClick={handleClearOrphans}>
+            Clear Orphans
+          </button>
+          <button className="basic-button" onClick={() => setConsoleData("")}>
+            Clear Console
+          </button>
+          <button className="basic-button" onClick={handleResetBlockchain}>
+            Reset Blockchain
+          </button>
         </div>
       </div>
     </>
