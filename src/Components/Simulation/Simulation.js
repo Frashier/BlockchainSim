@@ -7,9 +7,9 @@ import Modal from "react-modal";
 
 // TODO:
 // change orphaning to be automatic?
-// ? branches cant be longer than 1, unverifying is automatic
-// ? increase difficulty based on main branch length
-// fix bug that double click counts only on center
+// ? branches cant be longer than 1, unverifying is automatic:
+//    implemented block weights, when weight is too small you cant
+//    add more blocks to it
 // fix console not scrolling all the way down
 // change how info is displayed on block
 // drop down menu for block with show details and unverify?
@@ -79,6 +79,7 @@ function BlockComponent(props) {
           ? "simulation_scene_block--selected"
           : "simulation_scene_block"
       }
+      onClick={(e) => props.handleClick(e, props.block.prevHash)}
     >
       <motion.rect
         width={props.blockWidth}
@@ -94,7 +95,6 @@ function BlockComponent(props) {
         strokeWidth="5px"
       ></motion.rect>
       <foreignObject
-        onClick={(e) => props.handleClick(e, props.block.prevHash)}
         width="176"
         height="135"
         x={props.x + 2}
