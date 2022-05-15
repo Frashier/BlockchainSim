@@ -13,6 +13,11 @@ import Modal from "react-modal";
 // change how info is displayed on block
 // drop down menu for block with show details and unverify?
 // scroll to zoom
+// fix drawing lines
+// verify block
+// verify blockchain
+// nonce and prevHash on genesis
+// move blockchian to original position on reset
 
 Modal.setAppElement(document.getElementById("root"));
 
@@ -94,8 +99,8 @@ function BlockComponent(props) {
         strokeWidth="5px"
       ></motion.rect>
       <foreignObject
-        width="176"
-        height="135"
+        width={props.blockWidth}
+        height={props.blockHeight}
         x={props.x + 2}
         y={props.y}
         color="black"
@@ -103,11 +108,8 @@ function BlockComponent(props) {
         className="simulation_scene_block_text"
       >
         <div className="simulation_scene_block_header">
-          {props.block.prevHash} <br /> {props.block.timestamp}
-          <br /> {props.block.nonce}
+          0x{props.block.prevHash.toString().substring(0, 8)}...
         </div>
-        {/*<hr style={{ border: "1px solid black" }} />*/}
-        {/*<div className="simulation_scene_block_body}>{props.body}</div>*/}
         <button
           onClick={() => setInspectOpen(true)}
           className="simluation_scene_block_button"
@@ -130,8 +132,8 @@ function BlockComponent(props) {
 
 // TODO: button to see details of a block
 function BlockchainComponent(props) {
-  const blockWidth = 180;
-  const blockHeight = 180;
+  const blockWidth = 180 * props.blockchainScale;
+  const blockHeight = 180 * props.blockchainScale;
 
   // Initiate blocksAndCoords with the genesis block
   const blocks = props.blockchain.blocks.slice();
@@ -246,15 +248,14 @@ function BlockchainComponent(props) {
 }
 
 function Simulation() {
+  // Blockchain related states
   const [blockchain, setBlockchain] = useState(new Blockchain(2));
-
-  // The block we are pointing at
   const [blockSelected, setBlockSelected] = useState(blockchain.blocks[0]);
-
-  // State storing console output
-  const [consoleData, setConsoleData] = useState("");
-
   const [miner, setMiner] = useState("Undefined");
+
+  // Interface utilites
+  const [consoleData, setConsoleData] = useState("");
+  const [blockchainScale, setBlockchainScale] = useState(1);
 
   const svgRef = useRef(null);
   const consoleBottomRef = useRef(null);
@@ -377,6 +378,7 @@ function Simulation() {
           ref={svgRef}
         >
           <BlockchainComponent
+            blockchainScale={blockchainScale}
             constraintRef={svgRef}
             blockchain={blockchain}
             handleClick={handleClick}
@@ -384,6 +386,17 @@ function Simulation() {
           />
         </motion.svg>
       </div>
+      <input
+        type="range"
+        className="simulation_scene_slider"
+        id="blockchainScale"
+        name="blockchainScale"
+        min="50"
+        max="150"
+        value={blockchainScale * 100}
+        step="1"
+        onChange={(e) => setBlockchainScale(e.target.value / 100)}
+      />
       <div className="simulation_toolbar">
         <form className="simulation_toolbar_leftside">
           <input

@@ -117,9 +117,6 @@ class Block {
     return sha1HexHash(toHash);
   }
 
-  // TODO:
-  // verify block
-  // verify blockchain
   tryMine(difficulty) {
     let nonce = getRandomInt(MAX_NONCE);
     let hash = this.hash(nonce);
@@ -130,7 +127,6 @@ class Block {
     // The difference between SHA1 hash bit count
     // and the difficulty level is the position of the
     // first non-zero bit starting from the most significant one
-    // TODO: change 160 to const
     if (hex2bin(hash).length > SHA1_LENGTH - difficulty) {
       hash = "";
     }
@@ -139,8 +135,6 @@ class Block {
   }
 }
 
-// TODO:
-// nonce and prevHash on genesis
 class Blockchain {
   constructor(difficulty, blocks) {
     if (blocks === undefined) {

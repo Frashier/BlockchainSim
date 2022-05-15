@@ -8,6 +8,100 @@
   background-color: rgba(27, 33, 37, 0.7);
 }
 
+.simulation_scene_slider {
+  -webkit-appearance: none; /* Hides the slider so that custom slider can be made */
+  width: 25%;
+  align-self: center;
+  background: transparent; /* Otherwise white in Chrome */
+}
+
+/* Special styling for WebKit/Blink */
+.simulation_scene_slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  border: 1px solid var(--dark-grey);
+  height: 36px;
+  width: 16px;
+  border-radius: 3px;
+  background: var(--dark);
+  cursor: pointer;
+  margin-top: -14px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d; /* Add cool effects to your sliders! */
+}
+
+/* All the same stuff for Firefox */
+.simulation_scene_slider::-moz-range-thumb {
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+  border: 1px solid #000000;
+  height: 36px;
+  width: 16px;
+  border-radius: 3px;
+  background: var(--grey);
+  cursor: pointer;
+}
+
+/* All the same stuff for IE */
+.simulation_scene_slider::-ms-thumb {
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+  border: 1px solid #000000;
+  height: 36px;
+  width: 16px;
+  border-radius: 3px;
+  background: var(--grey);
+  cursor: pointer;
+}
+
+.simulation_scene_slider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 8.4px;
+  cursor: pointer;
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+  background: var(--dark);
+  border-radius: 1.3px;
+  border: 0.2px solid #010101;
+}
+
+.simulation_scene_slider:focus::-webkit-slider-runnable-track {
+  background: var(--dark);
+}
+
+.simulation_scene_slider::-moz-range-track {
+  width: 100%;
+  height: 8.4px;
+  cursor: pointer;
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+  background: var(--dark);
+  border-radius: 1.3px;
+  border: 0.2px solid #010101;
+}
+
+.simulation_scene_slider::-ms-track {
+  width: 100%;
+  height: 8.4px;
+  cursor: pointer;
+  background: transparent;
+  border-color: transparent;
+  border-width: 16px 0;
+  color: transparent;
+}
+.simulation_scene_slider::-ms-fill-lower {
+  background: #2a6495;
+  border: 0.2px solid #010101;
+  border-radius: 2.6px;
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+}
+.simulation_scene_slider:focus::-ms-fill-lower {
+  background: var(--dark);
+}
+.simulation_scene_slider::-ms-fill-upper {
+  background: var(--dark);
+  border: 0.2px solid #010101;
+  border-radius: 2.6px;
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+}
+.simulation_scene_slider:focus::-ms-fill-upper {
+  background: var(--dark);
+}
+
 .simulation_toolbar {
   display: grid;
   justify-items: center;
@@ -98,17 +192,22 @@
 }
 
 .simulation_scene_block_header {
-  font-size: 7px;
-  margin-bottom: 5px;
-  padding: 10px;
+  font-size: 20px;
+  overflow-wrap: break-word;
+  margin: 5px;
+  padding: 5px;
 }
 
 .simluation_scene_block_button {
   width: 30px;
   height: 30px;
   margin: 10px;
+  align-self: end;
   background: none;
   border: none;
+  position: absolute;
+  bottom: 0;
+  right: 0;
 }
 
 .simluation_scene_block_button:hover {
