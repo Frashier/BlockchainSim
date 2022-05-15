@@ -1,6 +1,6 @@
 import "./Simulation.css";
 import "../../index.css";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Block, Blockchain, BlockType } from "./Blockchain";
 import Modal from "react-modal";
@@ -10,7 +10,6 @@ import Modal from "react-modal";
 // ? branches cant be longer than 1, unverifying is automatic:
 //    implemented block weights, when weight is too small you cant
 //    add more blocks to it
-// fix console not scrolling all the way down
 // change how info is displayed on block
 // drop down menu for block with show details and unverify?
 // scroll to zoom
@@ -286,10 +285,12 @@ function Simulation() {
     // Used an arrow function so that the state
     // updates every time function is called
     setConsoleData((data) => data + `[${timeString}]: ${msg}\n`);
-
-    // TODO: fix not scrolling all the way down
-    consoleBottomRef.current.scrollIntoView({ behavior: "smooth" });
   };
+
+  // Scrolling to bottom of console on console update
+  useEffect(() => {
+    consoleBottomRef.current.scrollIntoView();
+  }, [consoleData]);
 
   const handleClearOrphans = () => {
     setBlockchain(blockchain.clearOrphans());
