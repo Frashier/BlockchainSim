@@ -401,7 +401,7 @@ function Simulation() {
             Add block{" "}
           </button>
         </form>
-        <pre className="simulation_console">
+        <pre className="simulation_toolbar_console">
           {consoleData}
           <div ref={consoleBottomRef} />
         </pre>

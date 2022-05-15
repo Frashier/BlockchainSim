@@ -11,6 +11,13 @@
   gap: 300px;
 }
 
+@media (max-width: 1024px) {
+  .navbar_navigation {
+    flex-direction: column;
+    gap: 50px;
+  }
+}
+
 .navbar_navigation_link {
   display: flex;
   align-items: center;
