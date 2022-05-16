@@ -1,13 +1,26 @@
 import "./Homepage.css";
 import "../../index.css";
+import { motion } from "framer-motion";
 
 function Homepage() {
   return (
-    <div className="homepage">
-      <div className="homepage_header">
+    <motion.div className="homepage">
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 2 }}
+        className="homepage_header"
+      >
         <h1>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</h1>
-      </div>
-      <div className="homepage_body">
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 2 }}
+        className="homepage_body"
+      >
         <p>
           <img
             src="Assets/Blockchain.svg"
@@ -41,11 +54,11 @@ function Homepage() {
           <img
             src="Assets/Bitcoin_Block_data.svg"
             alt="Blockchain structure"
-            style={{ float: "left", width: "100%" }}
+            style={{ float: "left", maxWidth: "100%" }}
           ></img>
         </p>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
