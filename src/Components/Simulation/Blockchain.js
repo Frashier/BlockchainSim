@@ -162,21 +162,16 @@ class Blockchain {
 
     // Mark every child of the unverified block as orphan
     // TODO: change to use children of
-    let nextBlocks = [newBlocks[index]];
-    while (nextBlocks.length !== 0) {
-      for (const possibleOrphan of newBlocks) {
-        if (
-          nextBlocks[0].hash(possibleOrphan.nonce) === possibleOrphan.prevHash
-        ) {
-          nextBlocks.push(possibleOrphan);
-        }
-      }
+    let blockStack = [newBlocks[index]];
+    while (blockStack.length !== 0) {
+      const currentBlock = blockStack.shift();
+      const possibleOrphans = this.childrenOf(currentBlock);
+      blockStack = [...possibleOrphans, ...blockStack];
 
       index = newBlocks.findIndex(
-        (block) => block.prevHash === nextBlocks[0].prevHash
+        (block) => block.prevHash === currentBlock.prevHash
       );
       newBlocks[index] = newBlocks[index].changeType(BlockType.Orphan);
-      nextBlocks.shift();
     }
 
     return new Blockchain(this.difficulty, newBlocks);
@@ -208,7 +203,7 @@ class Blockchain {
     while (blockStack.length != 0) {
       const currentBlock = blockStack.shift();
       const children = this.childrenOf(currentBlock);
-      blockStack = children.concat(blockStack);
+      blockStack = [...children, ...blockStack];
 
       if (children.length === 0 && currentBlock.weight > maxWeight) {
         maxWeight = currentBlock.weight;
