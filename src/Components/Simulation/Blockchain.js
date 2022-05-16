@@ -25,7 +25,6 @@ class BlockType {
   static Orphan = new BlockType("orphan");
   static Genesis = new BlockType("genesis");
   static Regular = new BlockType("regular");
-  static Head = new BlockType("head");
 
   constructor(type) {
     this.type = type;
@@ -67,15 +66,15 @@ class Block {
     timestamp,
     nonce,
     miner,
-    transactions,
-    branchable = true
+    weight = 0,
+    transactions
   ) {
     this.type = type; // Helper variable for simulation implementation
     this.prevHash = prevHash;
     this.timestamp = timestamp;
     this.nonce = nonce;
     this.miner = miner;
-    this.branchable = branchable;
+    this.weight = weight;
 
     // Don't generate txs for genesis.
     // Generate txs for block if txs
@@ -100,8 +99,11 @@ class Block {
       this.timestamp,
       this.nonce,
       this.miner,
-      this.transactions,
-      type === BlockType.Orphan ? false : this.branchable
+      // The bigger the difference betwen block's weight
+      // and max blockchain weight, the more fundamented
+      // the block in blockchain is
+      this.weight,
+      this.transactions
     );
   }
 
@@ -136,6 +138,8 @@ class Block {
 }
 
 class Blockchain {
+  static blockDifficultyInterval = 5;
+
   constructor(difficulty, blocks) {
     if (blocks === undefined) {
       this.blocks = [new Block(BlockType.Genesis, 0, Date.now(), 0, "genesis")];
@@ -144,15 +148,20 @@ class Blockchain {
     this.difficulty = difficulty;
   }
 
+  get maxWeight() {
+    return Math.max(...this.blocks.map((block) => block.weight));
+  }
+
   // Make every block an orphan starting from
   // an unverified block
-  orphanBlock(prevHash) {
+  orphanBlock(block) {
     let newBlocks = this.blocks;
 
     // Find block with specified previous hash
-    let index = newBlocks.findIndex((block) => block.prevHash === prevHash);
+    let index = newBlocks.findIndex((b) => b.prevHash === block.prevHash);
 
     // Mark every child of the unverified block as orphan
+    // TODO: change to use children of
     let nextBlocks = [newBlocks[index]];
     while (nextBlocks.length !== 0) {
       for (const possibleOrphan of newBlocks) {
@@ -180,52 +189,55 @@ class Blockchain {
     );
   }
 
+  findOrphans() {
+    let newBlockchain = this;
+
+    for (const block of newBlockchain.blocks) {
+      if (this.longestBranchWeight(block) < this.maxWeight - 1) {
+        newBlockchain.orphanBlock(block);
+      }
+    }
+
+    return newBlockchain;
+  }
+
+  longestBranchWeight(block) {
+    let blockStack = [block];
+    let maxWeight = block.weight;
+
+    while (blockStack.length != 0) {
+      const currentBlock = blockStack.shift();
+      const children = this.childrenOf(currentBlock);
+      blockStack = children.concat(blockStack);
+
+      if (children.length === 0 && currentBlock.weight > maxWeight) {
+        maxWeight = currentBlock.weight;
+      }
+    }
+
+    return maxWeight;
+  }
+
   childrenOf(block) {
     return this.blocks.filter(
       (tempBlock) => block.hash(tempBlock.nonce) === tempBlock.prevHash
     );
   }
 
-  // In order to calculate main branch length it is necessary to
-  // not count orphans and branchable blocks, as
-  // max amount of branches at the time of writting this comment
-  // is not defined
-  // To the length 2 is added because at every point in time
-  // at least 2 blocks are branchable even when there is only one
-  // branch
-  get mainBranchLength() {
-    return (
-      this.blocks.filter(
-        (block) => !block.branchable && block.type !== BlockType.Orphan
-      ).length + 2
-    );
-  }
-
   addBlock(block) {
-    const tempBlock = this.blocks.find(
-      (b) => block.prevHash === b.hash(block.nonce)
-    );
-    const unheadedBlock = this.blocks.find(
-      (b) => tempBlock.prevHash === b.hash(tempBlock.nonce)
-    );
-
-    let newBlocks = this.blocks.map((b) => {
-      if (b.prevHash === unheadedBlock?.prevHash) {
-        let temp = unheadedBlock.changeType(BlockType.Regular);
-        temp.branchable = false;
-        return temp;
-      }
-      return b;
-    });
-    newBlocks = [...newBlocks, block];
-
     let difficulty = this.difficulty;
-    if ((this.mainBranchLength + 1) % 5 === 0) {
+    if (
+      this.longestBranchWeight(this.blocks[0]) %
+        Blockchain.blockDifficultyInterval ===
+      0
+    ) {
       difficulty++;
     }
-    console.log(this.mainBranchLength);
 
-    return new Blockchain(difficulty, newBlocks);
+    let newBlockchain = new Blockchain(difficulty, [...this.blocks, block]);
+    newBlockchain = newBlockchain.findOrphans();
+
+    return newBlockchain;
   }
 }
 

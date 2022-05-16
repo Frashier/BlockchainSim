@@ -6,13 +6,7 @@ import { Block, Blockchain, BlockType } from "./Blockchain";
 import Modal from "react-modal";
 
 // TODO:
-// change orphaning to be automatic?
-// ? branches cant be longer than 1, unverifying is automatic:
-//    implemented block weights, when weight is too small you cant
-//    add more blocks to it
 // change how info is displayed on block
-// drop down menu for block with show details and unverify?
-// scroll to zoom
 // fix drawing lines
 // verify block
 // verify blockchain
@@ -92,7 +86,7 @@ function BlockComponent(props) {
         ry="20"
         x={props.x}
         y={props.y}
-        strokeDasharray={props.block.branchable ? "4" : ""}
+        strokeDasharray={4 - 2 * (props.maxWeight - props.block.weight)}
         fillOpacity={props.block.type === BlockType.Orphan ? 0.1 : 1}
         fill={props.block.type === BlockType.Genesis ? "#a23ad6" : "white"}
         stroke="black"
@@ -134,6 +128,7 @@ function BlockComponent(props) {
 function BlockchainComponent(props) {
   const blockWidth = 180 * props.blockchainScale;
   const blockHeight = 180 * props.blockchainScale;
+  const maxWeight = props.blockchain.maxWeight;
 
   // Initiate blocksAndCoords with the genesis block
   const blocks = props.blockchain.blocks.slice();
@@ -234,6 +229,7 @@ function BlockchainComponent(props) {
             <BlockComponent
               block={blockAndCoords.block}
               blockSelected={props.blockSelected}
+              maxWeight={maxWeight}
               handleClick={props.handleClick}
               blockWidth={blockWidth}
               blockHeight={blockHeight}
@@ -303,15 +299,6 @@ function Simulation() {
     writeToConsole("Blockchain reset");
   };
 
-  const handleUnverifyBlock = () => {
-    if (blockSelected.type === BlockType.Genesis) {
-      writeToConsole("Can't unverify a genesis block.");
-      return;
-    }
-    setBlockchain(blockchain.orphanBlock(blockSelected.prevHash));
-    setBlockSelected(null);
-  };
-
   // Proccess of adding a block is as follows:
   // 1. Check if it's possible to add block to the selected one
   // 2. Get hash of the block we are pointing at
@@ -327,9 +314,8 @@ function Simulation() {
       return;
     }
 
-    // TODO:  handle
     // Check if selected block is branchable
-    if (!blockSelected.branchable) {
+    if (blockSelected.weight < blockchain.maxWeight - 1) {
       writeToConsole("Can't branch from this block.");
       return;
     }
@@ -349,11 +335,12 @@ function Simulation() {
     writeToConsole(`Success for nonce = ${mineInfo.nonce}`);
 
     const blockAdded = new Block(
-      BlockType.Head,
+      BlockType.Regular,
       mineInfo.hash,
       Date.now(),
       mineInfo.nonce,
-      miner
+      miner,
+      blockSelected.weight + 1
     );
     setBlockSelected(blockAdded);
 
@@ -419,9 +406,6 @@ function Simulation() {
           <div ref={consoleBottomRef} />
         </pre>
         <div className="simulation_toolbar_rightside">
-          <button className="basic-button" onClick={handleUnverifyBlock}>
-            Unverify block
-          </button>
           <button className="basic-button" onClick={handleClearOrphans}>
             Clear Orphans
           </button>
