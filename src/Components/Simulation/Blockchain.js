@@ -160,8 +160,7 @@ class Blockchain {
     // Find block with specified previous hash
     let index = newBlocks.findIndex((b) => b.prevHash === block.prevHash);
 
-    // Mark every child of the unverified block as orphan
-    // TODO: change to use children of
+    // Orphan every child of orphaned block
     let blockStack = [newBlocks[index]];
     while (blockStack.length !== 0) {
       const currentBlock = blockStack.shift();

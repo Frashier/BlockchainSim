@@ -25,7 +25,7 @@ function BlockDetails(props) {
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: "rgba(0, 0, 0, 0.7)",
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
         },
         content: {
           top: "50%",
@@ -34,14 +34,14 @@ function BlockDetails(props) {
           bottom: "auto",
           marginRight: "-50%",
           transform: "translate(-50%, -50%)",
-          backgroundColor: "#ffff",
+          backgroundColor: "#929dac",
           border: "5px solid black",
         },
       }}
       isOpen={props.isOpen}
       onRequestClose={props.close}
     >
-      <div>
+      <div style={{ fontSize: "20px" }}>
         Previous hash: {props.block.prevHash}
         <br />
         Timestamp: {props.block.timestamp}
@@ -70,13 +70,17 @@ function BlockDetails(props) {
 function BlockComponent(props) {
   const [inspectOpen, setInspectOpen] = useState(false);
 
+  let className = "simulation_scene_block";
+
+  if (props.blockSelected?.prevHash === props.block.prevHash) {
+    className = "simulation_scene_block--selected";
+  } else if (props.block.type === BlockType.Orphan) {
+    className = "simulation_scene_block--orphaned";
+  }
+
   return (
     <motion.g
-      className={
-        props.blockSelected?.prevHash === props.block.prevHash
-          ? "simulation_scene_block--selected"
-          : "simulation_scene_block"
-      }
+      className={className}
       onClick={(e) => props.handleClick(e, props.block.prevHash)}
     >
       <motion.rect
@@ -87,8 +91,7 @@ function BlockComponent(props) {
         x={props.x}
         y={props.y}
         strokeDasharray={4 - 2 * (props.maxWeight - props.block.weight)}
-        fillOpacity={props.block.type === BlockType.Orphan ? 0.1 : 1}
-        fill={props.block.type === BlockType.Genesis ? "#a23ad6" : "white"}
+        fill={props.block.type === BlockType.Genesis ? "#a23ad6" : "#929dac"}
         stroke="black"
         strokeWidth="5px"
       ></motion.rect>
@@ -190,10 +193,15 @@ function BlockchainComponent(props) {
   }
 
   return (
-    <motion.g drag dragConstraints={props.constraintRef}>
+    <motion.g drag dragMomentum={false} dragConstraints={props.constraintRef}>
       {blocksAndCoords.map((blockAndCoords) => {
         return (
-          <motion.g key={blockAndCoords.block.prevHash}>
+          <motion.g
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1 }}
+            key={blockAndCoords.block.prevHash}
+          >
             {/* Horizontal left line */}
             {blockAndCoords.block.type !== BlockType.Genesis && (
               <motion.line
@@ -353,14 +361,12 @@ function Simulation() {
   };
 
   return (
-    <>
+    <div className="simulation">
       <div className="simulation_scene">
         <motion.svg
           width="100%"
           height="100%"
           viewBox="0 0 100vw 100vh"
-          initial="hidden"
-          animate="visible"
           style={{ objectFit: "fill" }}
           ref={svgRef}
         >
@@ -417,7 +423,7 @@ function Simulation() {
           </button>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
