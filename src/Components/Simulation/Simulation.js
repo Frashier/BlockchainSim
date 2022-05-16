@@ -11,6 +11,7 @@ import Modal from "react-modal";
 // verify blockchain
 // nonce and prevHash on genesis
 // move blockchian to original position on reset
+// move add block to blocks that are branchable?
 
 Modal.setAppElement(document.getElementById("root"));
 

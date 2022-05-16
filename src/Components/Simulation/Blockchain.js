@@ -152,8 +152,8 @@ class Blockchain {
     return Math.max(...this.blocks.map((block) => block.weight));
   }
 
-  // Make every block an orphan starting from
-  // an unverified block
+  // Chenge type of every child of the block
+  // to orphan including the block passed
   orphanBlock(block) {
     let newBlocks = this.blocks;
 
@@ -176,6 +176,7 @@ class Blockchain {
     return new Blockchain(this.difficulty, newBlocks);
   }
 
+  // Delete orphans from an blockchain object
   clearOrphans() {
     return new Blockchain(
       this.difficulty,
@@ -183,6 +184,7 @@ class Blockchain {
     );
   }
 
+  // Look for blocks to be orphaned and orphan them
   findOrphans() {
     let newBlockchain = this;
 
@@ -195,6 +197,8 @@ class Blockchain {
     return newBlockchain;
   }
 
+  // Get the maximum weight of a branch
+  // starting from given block
   longestBranchWeight(block) {
     let blockStack = [block];
     let maxWeight = block.weight;

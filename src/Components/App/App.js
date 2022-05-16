@@ -1,15 +1,20 @@
 import "./App.css";
 import Navbar from "../Navbar/Navbar";
-import { Outlet } from "react-router-dom";
+import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
+import Homepage from "../Homepage/Homepage";
+import Simulation from "../Simulation/Simulation";
 
 function App() {
   return (
-    <div className="app_container">
-      <Navbar />
-      <div className="app_body">
-        <Outlet />
+    <BrowserRouter>
+      <div className="app_container">
+        <Navbar />
+        <Routes className="app_body">
+          <Route path="/simulation" element={<Simulation />} />
+          <Route path="/" element={<Homepage />} />
+        </Routes>
       </div>
-    </div>
+    </BrowserRouter>
   );
 }
 
