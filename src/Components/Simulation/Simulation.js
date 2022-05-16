@@ -7,7 +7,6 @@ import Modal from "react-modal";
 
 // TODO:
 // change how info is displayed on block
-// fix drawing lines
 // verify block
 // verify blockchain
 // nonce and prevHash on genesis
@@ -166,6 +165,10 @@ function BlockchainComponent(props) {
       (object) => object.block.prevHash === blocks[i].prevHash
     );
 
+    if (!currentBlock) {
+      continue;
+    }
+
     let yTemp = currentBlock.y;
     let isFirstInBranch = false;
 
@@ -308,6 +311,7 @@ function Simulation() {
 
   const handleResetBlockchain = () => {
     setBlockchain(new Blockchain(2));
+    setBlockSelected(null);
     writeToConsole("Blockchain reset");
   };
 
