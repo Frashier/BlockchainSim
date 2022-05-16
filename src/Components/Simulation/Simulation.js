@@ -154,6 +154,10 @@ function BlockchainComponent(props) {
       if (block.y >= y) {
         block.y += 2 * blockHeight;
       }
+
+      if (block.parentY >= y) {
+        block.parentY += 2 * blockHeight;
+      }
     }
   };
 
@@ -165,36 +169,36 @@ function BlockchainComponent(props) {
     let yTemp = currentBlock.y;
     let isFirstInBranch = false;
 
-    for (let j = 1; j < blocks.length; j++) {
-      const possibleBlock = blocks[j];
+    const children = props.blockchain.childrenOf(currentBlock.block);
+    while (children.length !== 0) {
+      const child = children.shift();
 
       if (
-        currentBlock.block.hash(possibleBlock.nonce) === possibleBlock.prevHash
+        yTemp !== currentBlock.y &&
+        blocksAndCoords.some((block) => block.y === yTemp)
       ) {
-        // Check if y is taken during branching
-        if (
-          yTemp !== currentBlock.y &&
-          blocksAndCoords.some((block) => block.y === yTemp)
-        ) {
-          incrementYLevels(yTemp);
-        }
-
-        blocksAndCoords.push({
-          block: possibleBlock,
-          x: currentBlock.x + 2 * blockWidth,
-          y: yTemp,
-          parentY: currentBlock.y,
-          isFirst: isFirstInBranch,
-        });
-        isFirstInBranch = true;
-        yTemp += 2 * blockHeight;
+        incrementYLevels(yTemp);
       }
+
+      blocksAndCoords.push({
+        block: child,
+        x: currentBlock.x + 2 * blockWidth,
+        y: yTemp,
+        parentY: currentBlock.y,
+        isFirst: isFirstInBranch,
+      });
+      isFirstInBranch = true;
+      yTemp += 2 * blockHeight;
     }
   }
 
   return (
     <motion.g drag dragMomentum={false} dragConstraints={props.constraintRef}>
       {blocksAndCoords.map((blockAndCoords) => {
+        console.log(
+          `${blockAndCoords.block.prevHash} ${blockAndCoords.parentY}`
+        );
+
         return (
           <motion.g
             initial={{ opacity: 0 }}
