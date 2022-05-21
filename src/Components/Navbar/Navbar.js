@@ -6,10 +6,10 @@ function Navbar() {
     <div className="navbar">
       <div className="navbar_navigation">
         <Link to="/" className="navbar_navigation_link">
-          Homepage
+          Strona główna
         </Link>
         <Link to="/simulation" className="navbar_navigation_link">
-          Simulation
+          Symulacja
         </Link>
       </div>
     </div>

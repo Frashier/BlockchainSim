@@ -224,11 +224,7 @@ class Blockchain {
 
   addBlock(block) {
     let difficulty = this.difficulty;
-    if (
-      this.longestBranchWeight(this.blocks[0]) %
-        Blockchain.blockDifficultyInterval ===
-      0
-    ) {
+    if ((this.maxWeight + 1) % Blockchain.blockDifficultyInterval === 0) {
       difficulty++;
     }
 

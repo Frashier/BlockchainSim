@@ -12,7 +12,7 @@ function Homepage() {
         transition={{ duration: 2 }}
         className="homepage_header"
       >
-        <h1>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</h1>
+        <h1>Czym jest blockchain?</h1>
       </motion.div>
       <motion.div
         initial={{ opacity: 0 }}
@@ -27,17 +27,9 @@ function Homepage() {
             alt="Blockchain structure"
             style={{ float: "right", height: "500px" }}
           ></img>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque
-          condimentum justo vel nulla tincidunt, et efficitur nisl pellentesque.
-          Nullam venenatis nisi sed massa condimentum facilisis. Proin tincidunt
-          est sit amet risus rutrum, non consequat dui ultrices. Phasellus
-          consequat porta ante, quis gravida arcu molestie eget. Donec arcu
-          enim, vestibulum id magna ut, pharetra ullamcorper libero. Vestibulum
-          dapibus interdum arcu. Vivamus elementum varius risus ac finibus.
-          Donec vehicula enim efficitur venenatis rhoncus. In pretium sodales
-          blandit. Fusce rutrum felis et enim sagittis consectetur. Nulla congue
-          in dolor non euismod. Pellentesque habitant morbi tristique senectus
-          et netus et malesuada fames ac turpis egestas.
+          Blockchain to jednokierunkowa lista rekordów nazywanych blokami. Bloki
+          można dodawać jedynie na końcu listy, a każdy z nich jest pozwiązany z
+          poprzednikiem przy pomocy funkcji haszującej.
         </p>
         <p>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque

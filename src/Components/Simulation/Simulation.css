@@ -207,6 +207,7 @@
   overflow-wrap: break-word;
   margin: 5px;
   padding: 5px;
+  user-select: none;
 }
 
 .simluation_scene_block_button {

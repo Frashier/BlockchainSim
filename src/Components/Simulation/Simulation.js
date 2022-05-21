@@ -11,7 +11,6 @@ import Modal from "react-modal";
 // verify blockchain
 // nonce and prevHash on genesis
 // move blockchian to original position on reset
-// move add block to blocks that are branchable?
 
 Modal.setAppElement(document.getElementById("root"));
 
@@ -42,15 +41,15 @@ function BlockDetails(props) {
       onRequestClose={props.close}
     >
       <div style={{ fontSize: "20px" }}>
-        Previous hash: {props.block.prevHash}
+        Poprzedni hash: {props.block.prevHash}
         <br />
-        Timestamp: {props.block.timestamp}
+        Znacznik czasowy: {props.block.timestamp}
         <br />
         Nonce: {props.block.nonce}
         <br />
-        Type: {props.block.type.toString()}
+        Typ: {props.block.type.toString()}
         <br />
-        Miner: {props.block.miner}
+        Kopacz: {props.block.miner}
         <br />
         <hr />
         {props.block.transactions.map((tx) => {
@@ -58,7 +57,7 @@ function BlockDetails(props) {
             <li key={tx.index}>
               Hash: {tx.hash}
               <br />
-              Timestamp: {tx.timestamp}
+              Znacznik czasowy: {tx.timestamp}
             </li>
           );
         })}
@@ -127,7 +126,6 @@ function BlockComponent(props) {
   );
 }
 
-// TODO: button to see details of a block
 function BlockchainComponent(props) {
   const blockWidth = 180 * props.blockchainScale;
   const blockHeight = 180 * props.blockchainScale;
@@ -199,10 +197,6 @@ function BlockchainComponent(props) {
   return (
     <motion.g drag dragMomentum={false} dragConstraints={props.constraintRef}>
       {blocksAndCoords.map((blockAndCoords) => {
-        console.log(
-          `${blockAndCoords.block.prevHash} ${blockAndCoords.parentY}`
-        );
-
         return (
           <motion.g
             initial={{ opacity: 0 }}
@@ -263,7 +257,7 @@ function Simulation() {
   // Blockchain related states
   const [blockchain, setBlockchain] = useState(new Blockchain(2));
   const [blockSelected, setBlockSelected] = useState(blockchain.blocks[0]);
-  const [miner, setMiner] = useState("Undefined");
+  const [miner, setMiner] = useState("Nieznany");
 
   // Interface utilites
   const [consoleData, setConsoleData] = useState("");
@@ -284,8 +278,6 @@ function Simulation() {
   };
 
   // Method used for writting to console.
-  // Passed to block class in order to display info about
-  // mining
   const writeToConsole = (msg) => {
     const date = new Date();
     const timeString =
@@ -307,13 +299,13 @@ function Simulation() {
 
   const handleClearOrphans = () => {
     setBlockchain(blockchain.clearOrphans());
-    writeToConsole("Orphans cleared.");
+    writeToConsole("Osierocone bloki usunięte.");
   };
 
   const handleResetBlockchain = () => {
     setBlockchain(new Blockchain(2));
     setBlockSelected(null);
-    writeToConsole("Blockchain reset");
+    writeToConsole("Blockchain zresetowany.");
   };
 
   // Proccess of adding a block is as follows:
@@ -327,29 +319,29 @@ function Simulation() {
     event.preventDefault();
 
     if (blockSelected === null) {
-      writeToConsole("No block selected.");
+      writeToConsole("Nie wybrano bloku.");
       return;
     }
 
     // Check if selected block is branchable
     if (blockSelected.weight < blockchain.maxWeight - 1) {
-      writeToConsole("Can't branch from this block.");
+      writeToConsole("Nie można dodać bloku do wybranego bloku.");
       return;
     }
 
-    writeToConsole(`Starting mining...`);
+    writeToConsole(`Rozpoczynanie kopania...`);
     let mineInfo;
     let attemptNumber = 1;
     do {
-      writeToConsole(`Attempt #${attemptNumber}`);
+      writeToConsole(`Próba #${attemptNumber}.`);
       mineInfo = blockSelected.tryMine(blockchain.difficulty);
 
       if (!mineInfo.hash) {
-        writeToConsole(`Failure for nonce = ${mineInfo.nonce}`);
+        writeToConsole(`Porażka dla nonce = ${mineInfo.nonce}.`);
       }
       attemptNumber++;
     } while (!mineInfo.hash);
-    writeToConsole(`Success for nonce = ${mineInfo.nonce}`);
+    writeToConsole(`Sukces dla nonce = ${mineInfo.nonce}.`);
 
     const blockAdded = new Block(
       BlockType.Regular,
@@ -363,7 +355,7 @@ function Simulation() {
 
     const newBlockchain = blockchain.addBlock(blockAdded);
     if (newBlockchain.difficulty > blockchain.difficulty) {
-      writeToConsole("Blockchain difficulty increased");
+      writeToConsole("Poziom trudności kopania zwiększony.");
     }
     // TODO: undo button?
     setBlockchain(newBlockchain);
@@ -405,7 +397,7 @@ function Simulation() {
             type="text"
             id="miner"
             name="miner"
-            placeholder="Miner's name"
+            placeholder="Nazwa kopacza"
             onChange={(e) => setMiner(e.target.value)}
           />
           <button
@@ -413,7 +405,7 @@ function Simulation() {
             type="submit"
             onClick={handleAddBlock}
           >
-            Add block{" "}
+            Dodaj blok
           </button>
         </form>
         <pre className="simulation_toolbar_console">
@@ -422,13 +414,13 @@ function Simulation() {
         </pre>
         <div className="simulation_toolbar_rightside">
           <button className="basic-button" onClick={handleClearOrphans}>
-            Clear Orphans
+            Usuń osierocone bloki
           </button>
           <button className="basic-button" onClick={() => setConsoleData("")}>
-            Clear Console
+            Wyczyść konsole
           </button>
           <button className="basic-button" onClick={handleResetBlockchain}>
-            Reset Blockchain
+            Zresetuj blockchain
           </button>
         </div>
       </div>

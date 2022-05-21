@@ -7,6 +7,7 @@
 
 .homepage_header > h1 {
   text-align: center;
+  font-size: 50px;
 }
 
 .homepage_body {
@@ -17,7 +18,7 @@
 }
 
 .homepage_body > p {
-  font-size: 30px;
+  font-size: 40px;
   text-align: start;
 }
 
