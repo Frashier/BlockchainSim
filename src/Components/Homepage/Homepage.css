@@ -19,6 +19,7 @@
 .homepage_header {
   grid-area: header;
   text-align: center;
+  align-self: center;
   font-size: 40px;
 }
 
@@ -27,4 +28,5 @@
   gap: 50px;
   font-size: 40px;
   text-align: start;
+  margin: 20px;
 }

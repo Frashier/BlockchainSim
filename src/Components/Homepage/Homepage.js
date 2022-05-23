@@ -11,9 +11,7 @@ function Homepage() {
         viewport={{ once: true }}
         transition={{ duration: 1 }}
         className="homepage_header"
-      >
-        <h1>Czym jest blockchain?</h1>
-      </motion.div>
+      ></motion.div>
       <motion.div
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
@@ -22,7 +20,8 @@ function Homepage() {
         className="homepage_body"
         style={{ gridArea: "first-text" }}
       >
-        <p style={{ gridArea: "first-text" }}>
+        <h1>Blockchain</h1>
+        <p>
           Blockchain to jednokierunkowa lista rekordów nazywanych blokami. Bloki
           można dodawać jedynie na końcu listy, a każdy z nich jest pozwiązany z
           poprzednikiem przy pomocy funkcji haszującej.
@@ -50,18 +49,12 @@ function Homepage() {
         className="homepage_body"
         style={{ gridArea: "second-text" }}
       >
+        <h1>Blok</h1>
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque
-          condimentum justo vel nulla tincidunt, et efficitur nisl pellentesque.
-          Nullam venenatis nisi sed massa condimentum facilisis. Proin tincidunt
-          est sit amet risus rutrum, non consequat dui ultrices. Phasellus
-          consequat porta ante, quis gravida arcu molestie eget. Donec arcu
-          enim, vestibulum id magna ut, pharetra ullamcorper libero. Vestibulum
-          dapibus interdum arcu. Vivamus elementum varius risus ac finibus.
-          Donec vehicula enim efficitur venenatis rhoncus. In pretium sodales
-          blandit. Fusce rutrum felis et enim sagittis consectetur. Nulla congue
-          in dolor non euismod. Pellentesque habitant morbi tristique senectus
-          et netus et malesuada fames ac turpis egestas.
+          Blok to podstawowy element składowy blockchain. Składa się z nagłówka
+          zawierającego hasz zawartości poprzedniego bloku, korzeń drzewa haszy
+          i nonce oraz danych zawierających zapis transakcji wykonanych w danym
+          bloku.
         </p>
       </motion.div>
       <motion.div

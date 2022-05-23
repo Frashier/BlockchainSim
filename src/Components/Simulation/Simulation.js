@@ -6,9 +6,8 @@ import { Block, Blockchain, BlockType } from "./Blockchain";
 import Modal from "react-modal";
 
 // TODO:
-// verify block
-// verify blockchain
-// move blockchian to original position on reset
+// verify block?
+// verify blockchain?
 
 Modal.setAppElement(document.getElementById("root"));
 

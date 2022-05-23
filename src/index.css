@@ -9,13 +9,6 @@ body {
   font-family: "Montserrat", sans-serif;
   color: var(--white);
   background: radial-gradient(at bottom right, var(--red) 0%, var(--dark) 70%);
-  /*
-  background: rgb(27, 33, 37);
-  background: linear-gradient(
-    135deg,
-    rgba(27, 33, 37, 1) 40%,
-    rgba(184, 66, 77, 1) 100%
-  );*/
   padding: 0px;
 }
 code {
