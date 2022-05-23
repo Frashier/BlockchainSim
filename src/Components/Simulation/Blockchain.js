@@ -160,13 +160,7 @@ class Blockchain {
       } while (!mineInfo.hash);
 
       this.blocks = [
-        new Block(
-          BlockType.Genesis,
-          mineInfo.hash,
-          Date.now(),
-          mineInfo.nonce,
-          "genesis"
-        ),
+        new Block(BlockType.Genesis, 0, Date.now(), mineInfo.nonce, "genesis"),
       ];
     } else this.blocks = blocks;
   }

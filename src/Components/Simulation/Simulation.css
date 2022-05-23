@@ -120,14 +120,14 @@
   margin: 1%;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
   .simulation_toolbar {
     display: flex;
     flex-direction: column;
   }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
   .simulation_toolbar_leftside {
     display: flex;
     flex-direction: column;
@@ -189,12 +189,18 @@
 
 .simulation_toolbar_rightside {
   grid-area: "right-side";
-  /*flex-wrap: wrap;*/
+  flex-wrap: wrap;
   display: flex;
   gap: 10px;
   margin: 30px;
-  align-items: center;
-  justify-content: space-evenly;
+  align-content: center;
+  justify-content: center;
+}
+
+.simulation_toolbar_rightside > button {
+  width: 200px;
+  height: 75px;
+  padding: 0;
 }
 
 .simulation_scene_block--selected {

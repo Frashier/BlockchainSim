@@ -264,6 +264,7 @@ function Simulation() {
   // Interface utilites
   const [consoleData, setConsoleData] = useState("");
   const [blockchainScale, setBlockchainScale] = useState(1);
+  const [rerenderSwitch, setRerenderSwitch] = useState(false);
 
   const svgRef = useRef(null);
   const consoleBottomRef = useRef(null);
@@ -307,6 +308,7 @@ function Simulation() {
   const handleResetBlockchain = () => {
     setBlockchain(new Blockchain(2));
     setBlockSelected(null);
+    setRerenderSwitch(!rerenderSwitch);
     writeToConsole("Blockchain zresetowany.");
   };
 
@@ -378,6 +380,7 @@ function Simulation() {
           viewBox="0 0 100vw 100vh"
           style={{ objectFit: "fill" }}
           ref={svgRef}
+          key={rerenderSwitch}
         >
           <BlockchainComponent
             blockchainScale={blockchainScale}
@@ -434,6 +437,12 @@ function Simulation() {
           </button>
           <button className="basic-button" onClick={handleResetBlockchain}>
             Zresetuj blockchain
+          </button>
+          <button
+            className="basic-button"
+            onClick={() => setRerenderSwitch(!rerenderSwitch)}
+          >
+            Wycentruj blockchain
           </button>
         </div>
       </div>
