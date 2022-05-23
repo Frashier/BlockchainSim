@@ -6,10 +6,8 @@ import { Block, Blockchain, BlockType } from "./Blockchain";
 import Modal from "react-modal";
 
 // TODO:
-// change how info is displayed on block
 // verify block
 // verify blockchain
-// nonce and prevHash on genesis
 // move blockchian to original position on reset
 
 Modal.setAppElement(document.getElementById("root"));
@@ -27,13 +25,17 @@ function BlockDetails(props) {
           backgroundColor: "rgba(0, 0, 0, 0.5)",
         },
         content: {
+          overflowWrap: "break-word",
+          padding: "30px",
+          maxWidth: "70%",
+          maxHeight: "70%",
           top: "50%",
           left: "50%",
           right: "auto",
           bottom: "auto",
           marginRight: "-50%",
           transform: "translate(-50%, -50%)",
-          backgroundColor: "#929dac",
+          backgroundColor: "rgba(27, 33, 37, 0.7)",
           border: "5px solid black",
         },
       }}
@@ -51,7 +53,7 @@ function BlockDetails(props) {
         <br />
         Kopacz: {props.block.miner}
         <br />
-        <hr />
+        <hr style={{ border: "1px solid black" }} />
         {props.block.transactions.map((tx) => {
           return (
             <li key={tx.index}>
@@ -325,7 +327,7 @@ function Simulation() {
 
     // Check if selected block is branchable
     if (blockSelected.weight < blockchain.maxWeight - 1) {
-      writeToConsole("Nie można dodać bloku do wybranego bloku.");
+      writeToConsole("Dodanie bloku do tego bloku jest nieopłacalne.");
       return;
     }
 
@@ -362,7 +364,13 @@ function Simulation() {
   };
 
   return (
-    <div className="simulation">
+    <motion.div
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true }}
+      transition={{ duration: 1 }}
+      className="simulation"
+    >
       <div className="simulation_scene">
         <motion.svg
           width="100%"
@@ -392,22 +400,27 @@ function Simulation() {
         onChange={(e) => setBlockchainScale(e.target.value / 100)}
       />
       <div className="simulation_toolbar">
-        <form className="simulation_toolbar_leftside">
-          <input
-            type="text"
-            id="miner"
-            name="miner"
-            placeholder="Nazwa kopacza"
-            onChange={(e) => setMiner(e.target.value)}
-          />
-          <button
-            className="basic-button"
-            type="submit"
-            onClick={handleAddBlock}
-          >
-            Dodaj blok
-          </button>
-        </form>
+        <div className="simulation_toolbar_leftside">
+          <form className="simulation_toolbar_leftside_form">
+            <input
+              type="text"
+              id="miner"
+              name="miner"
+              placeholder="Nazwa kopacza"
+              onChange={(e) => setMiner(e.target.value)}
+            />
+            <button
+              className="basic-button"
+              type="submit"
+              onClick={handleAddBlock}
+            >
+              Dodaj blok
+            </button>
+          </form>
+          <p className="simulation_toolbar_leftside_difficulty">
+            Poziom trudności kopania: {blockchain.difficulty}
+          </p>
+        </div>
         <pre className="simulation_toolbar_console">
           {consoleData}
           <div ref={consoleBottomRef} />
@@ -424,7 +437,7 @@ function Simulation() {
           </button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

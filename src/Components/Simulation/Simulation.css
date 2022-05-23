@@ -9,7 +9,7 @@
   flex: 1 1 0%;
   overflow: hidden;
   max-height: 100%;
-  min-height: 70%;
+  min-height: 500px;
   margin: 1%;
   border: 2px solid black;
   background-color: rgba(27, 33, 37, 0.7);
@@ -151,15 +151,28 @@
 
 .simulation_toolbar_leftside {
   grid-area: "left-side";
-  display: flex;
-  flex-direction: row;
   align-items: center;
   align-self: center;
-  margin: 30px;
+  margin: 20px;
+}
+
+.simulation_toolbar_leftside_difficulty {
+  font-size: 25px;
+  background-color: rgba(27, 33, 37, 0.7);
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  border: 2px solid black;
+}
+
+.simulation_toolbar_leftside_form {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
   gap: 10px;
 }
 
-.simulation_toolbar_leftside > input {
+.simulation_toolbar_leftside_form > input {
   background-color: var(--grey);
   border: none;
   font-size: 20px;
@@ -168,7 +181,7 @@
   padding: 5px;
 }
 
-.simulation_toolbar_leftside > input:focus {
+.simulation_toolbar_leftside_form > input:focus {
   box-shadow: 0 0 10px var(--red);
   border: 1px solid var(--red);
   outline: none !important;
@@ -176,18 +189,14 @@
 
 .simulation_toolbar_rightside {
   grid-area: "right-side";
-  flex-wrap: wrap;
+  /*flex-wrap: wrap;*/
   display: flex;
   gap: 10px;
-  margin: 10px;
+  margin: 30px;
   align-items: center;
   justify-content: space-evenly;
 }
 
-.simulation_toolbar_difficulty {
-  display: flex;
-  gap: 1vw;
-}
 .simulation_scene_block--selected {
   transition: 0.25s;
   filter: drop-shadow(0px 0px 20px var(--red));

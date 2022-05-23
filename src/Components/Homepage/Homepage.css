@@ -1,27 +1,30 @@
 .homepage {
   margin: 10%;
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 40px;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto;
+  grid-template-areas:
+    "header header"
+    "first-text first-image"
+    "second-image second-text"
+    "third-text third-text"
+    "third-image third-image";
 }
 
-.homepage_header > h1 {
+.homepage > div {
+  padding: 20px;
+}
+
+.homepage_header {
+  grid-area: header;
   text-align: center;
-  font-size: 50px;
+  font-size: 40px;
 }
 
 .homepage_body {
   justify-content: center;
-  display: flex;
-  flex-direction: column;
   gap: 50px;
-}
-
-.homepage_body > p {
   font-size: 40px;
   text-align: start;
-}
-
-.homepage_body > p > img {
-  display: inline;
 }

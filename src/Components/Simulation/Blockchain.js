@@ -16,6 +16,7 @@ function sha1HexHash(toHash) {
 const SHA1_LENGTH = 160;
 const MAX_NONCE = 1000000;
 const BLOCK_SIZE = 5;
+const MAX_DIFFICULTY = 10;
 
 // Enum representing all possible block types.
 // Block types are used as a helper variable in
@@ -141,11 +142,33 @@ class Blockchain {
   static blockDifficultyInterval = 5;
 
   constructor(difficulty, blocks) {
-    if (blocks === undefined) {
-      this.blocks = [new Block(BlockType.Genesis, 0, Date.now(), 0, "genesis")];
-    } else this.blocks = blocks;
+    // Guard against increasing the difficulty
+    // past the maximum amount
+    if (difficulty > MAX_DIFFICULTY) {
+      this.difficulty = MAX_DIFFICULTY;
+    } else {
+      this.difficulty = difficulty;
+    }
 
-    this.difficulty = difficulty;
+    // Create genesis
+    if (blocks === undefined) {
+      const dummyBlock = new Block(BlockType.Regular, 0, Date.now(), 0, "");
+      let mineInfo;
+
+      do {
+        mineInfo = dummyBlock.tryMine(this.difficulty);
+      } while (!mineInfo.hash);
+
+      this.blocks = [
+        new Block(
+          BlockType.Genesis,
+          mineInfo.hash,
+          Date.now(),
+          mineInfo.nonce,
+          "genesis"
+        ),
+      ];
+    } else this.blocks = blocks;
   }
 
   get maxWeight() {
