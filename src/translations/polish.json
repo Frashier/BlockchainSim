@@ -1,0 +1,11 @@
+{
+  "homepage": {
+    "mainHeader": "BlockchainSim",
+    "header": ["Blockchain", "Blok", "Sieć"],
+    "body": [
+      "Blockchain to jednokierunkowa lista rekordów nazywanych blokami. Bloki można dodawać jedynie na końcu listy, a każdy z nich jest pozwiązany z poprzednikiem przy pomocy funkcji haszującej.",
+      "Blok to podstawowy element składowy blockchain. Składa się z nagłówka zawierającego hasz zawartości poprzedniego bloku, korzeń drzewa haszy i nonce oraz danych zawierających zapis transakcji wykonanych w danym bloku.",
+      "Sieć blockchain często funkcjonuje w oparciu o architekturę peer-to-peer, w której wszystkie maszyny uczestniczące w wymianie danych w sieci komputerowej posiadają te same uprawnienia. "
+    ]
+  }
+}
