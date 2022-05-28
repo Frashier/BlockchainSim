@@ -1,0 +1,38 @@
+.block--selected {
+  transition: 0.25s;
+  filter: drop-shadow(0px 0px 20px var(--red));
+}
+
+.block--orphaned {
+  transition: 1s;
+  fill-opacity: 0.1;
+}
+
+.block_text {
+  display: flex;
+}
+
+.block_header {
+  font-size: 20px;
+  overflow-wrap: break-word;
+  margin: 5px;
+  padding: 5px;
+  user-select: none;
+}
+
+.block_button {
+  width: 30px;
+  height: 30px;
+  margin: 10px;
+  align-self: end;
+  background: none;
+  border: none;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+.block_button:hover {
+  transition: 0.5s;
+  transform: scale(1.3);
+}
