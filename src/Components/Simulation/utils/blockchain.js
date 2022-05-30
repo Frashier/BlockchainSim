@@ -1,16 +1,16 @@
 import sha1 from "crypto-js/sha1";
 import Hex from "crypto-js/enc-hex";
 
+function sha1HexHash(toHash) {
+  return Hex.stringify(sha1(toHash));
+}
+
 function hex2bin(hex) {
   return parseInt(hex, 16).toString(2);
 }
 
 function getRandomInt(max) {
   return Math.floor(Math.random() * max);
-}
-
-function sha1HexHash(toHash) {
-  return Hex.stringify(sha1(toHash));
 }
 
 const SHA1_LENGTH = 160;
@@ -100,7 +100,7 @@ class Block {
       this.timestamp,
       this.nonce,
       this.miner,
-      // The bigger the difference betwen block's weight
+      // The bigger the difference between block's weight
       // and max blockchain weight, the more fundamented
       // the block in blockchain is
       this.weight,
@@ -193,7 +193,7 @@ class Blockchain {
     return new Blockchain(this.difficulty, newBlocks);
   }
 
-  // Delete orphans from an blockchain object
+  // Delete orphans from a blockchain object
   clearOrphans() {
     return new Blockchain(
       this.difficulty,

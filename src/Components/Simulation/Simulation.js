@@ -116,7 +116,7 @@ function Simulation() {
       attemptNumber++;
     } while (!mineInfo.hash);
     writeToConsole(
-      `${content.simulation.consoleNotification[6]} nonce = ${mineInfo.nonce}.`
+      `${content.simulation.consoleNotification[7]} nonce = ${mineInfo.nonce}.`
     );
 
     const blockAdded = new Block(
@@ -131,7 +131,7 @@ function Simulation() {
 
     const newBlockchain = blockchain.addBlock(blockAdded);
     if (newBlockchain.difficulty > blockchain.difficulty) {
-      writeToConsole(content.simulation.consoleNotification[7]);
+      writeToConsole(content.simulation.consoleNotification[8]);
     }
 
     setBlockchain(newBlockchain);
