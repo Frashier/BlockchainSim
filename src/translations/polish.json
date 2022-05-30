@@ -7,5 +7,31 @@
       "Blok to podstawowy element składowy blockchain. Składa się z nagłówka zawierającego hasz zawartości poprzedniego bloku, korzeń drzewa haszy i nonce oraz danych zawierających zapis transakcji wykonanych w danym bloku.",
       "Sieć blockchain często funkcjonuje w oparciu o architekturę peer-to-peer, w której wszystkie maszyny uczestniczące w wymianie danych w sieci komputerowej posiadają te same uprawnienia. "
     ]
+  },
+  "simulation": {
+    "form": ["Nazwa kopacza", "Dodaj blok"],
+    "difficulty": "Poziom trudności kopania",
+    "consoleNotification": [
+      "Osierocone bloki usunięte. ",
+      "Blockchain zresetowany. ",
+      "Nie wybrano bloku. ",
+      "Dodanie bloku do tego bloku jest nieopłacalne. ",
+      "Rozpoczynanie kopania...",
+      "Próba",
+      "Porażka dla",
+      "Suckes dla",
+      "Poziom trudności kopania zwiększony. "
+    ],
+    "buttons": [
+      "Usuń osierocone bloki",
+      "Wyczyść konsole",
+      "Zresetuj blockchain",
+      "Wycentruj blockchain"
+    ],
+    "details": ["Poprzedni hash", "Znacznik czasowy", "Typ", "Kopacz"]
+  },
+  "navbar": {
+    "homepage": "Strona główna",
+    "simulation": "Symulacja"
   }
 }

@@ -1,22 +1,20 @@
 import "./Simulation.css";
 import "../../index.css";
+import content from "../../translations/polish.json";
 import BlockchainComponent from "./BlockchainComponent";
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Block, Blockchain, BlockType } from "./utils/blockchain";
 import Modal from "react-modal";
 
-// TODO:
-// verify block?
-// verify blockchain?
-
 Modal.setAppElement(document.getElementById("root"));
 
 function Simulation() {
   // Blockchain related states
-  const [blockchain, setBlockchain] = useState(new Blockchain(2));
+  const [blockchain, _setBlockchain] = useState(new Blockchain(2));
+  const [blockchainHistory, setBlockchainHistory] = useState([blockchain]);
   const [blockSelected, setBlockSelected] = useState(blockchain.blocks[0]);
-  const [miner, setMiner] = useState("Nieznany");
+  const [miner, setMiner] = useState(undefined);
 
   // Interface utilites
   const [consoleData, setConsoleData] = useState("");
@@ -25,6 +23,15 @@ function Simulation() {
 
   const svgRef = useRef(null);
   const consoleBottomRef = useRef(null);
+
+  const setBlockchain = (newBlockchain) => {
+    let newHistory = [...blockchainHistory, blockchain];
+    if (newHistory.length > 5) {
+      newHistory.shift();
+    }
+    setBlockchainHistory(newHistory);
+    _setBlockchain(newBlockchain);
+  };
 
   // Handling double clicking on blocks
   const handleClick = (e, prevHash) => {
@@ -59,14 +66,16 @@ function Simulation() {
 
   const handleClearOrphans = () => {
     setBlockchain(blockchain.clearOrphans());
-    writeToConsole("Osierocone bloki usunięte.");
+    writeToConsole(content.simulation.consoleNotification[0]);
   };
 
   const handleResetBlockchain = () => {
-    setBlockchain(new Blockchain(2));
+    const blockchain = new Blockchain(2);
+    setBlockchain(blockchain);
+    setBlockchainHistory([blockchain]);
     setBlockSelected(null);
     setRerenderSwitch(!rerenderSwitch);
-    writeToConsole("Blockchain zresetowany.");
+    writeToConsole(content.simulation.consoleNotification[1]);
   };
 
   // Proccess of adding a block is as follows:
@@ -80,29 +89,35 @@ function Simulation() {
     event.preventDefault();
 
     if (blockSelected === null) {
-      writeToConsole("Nie wybrano bloku.");
+      writeToConsole(content.simulation.consoleNotification[2]);
       return;
     }
 
     // Check if selected block is branchable
     if (blockSelected.weight < blockchain.maxWeight - 1) {
-      writeToConsole("Dodanie bloku do tego bloku jest nieopłacalne.");
+      writeToConsole(content.simulation.consoleNotification[3]);
       return;
     }
 
-    writeToConsole(`Rozpoczynanie kopania...`);
+    writeToConsole(content.simulation.consoleNotification[4]);
     let mineInfo;
     let attemptNumber = 1;
     do {
-      writeToConsole(`Próba #${attemptNumber}.`);
+      writeToConsole(
+        `${content.simulation.consoleNotification[5]} #${attemptNumber}.`
+      );
       mineInfo = blockSelected.tryMine(blockchain.difficulty);
 
       if (!mineInfo.hash) {
-        writeToConsole(`Porażka dla nonce = ${mineInfo.nonce}.`);
+        writeToConsole(
+          `${content.simulation.consoleNotification[6]} nonce = ${mineInfo.nonce}.`
+        );
       }
       attemptNumber++;
     } while (!mineInfo.hash);
-    writeToConsole(`Sukces dla nonce = ${mineInfo.nonce}.`);
+    writeToConsole(
+      `${content.simulation.consoleNotification[6]} nonce = ${mineInfo.nonce}.`
+    );
 
     const blockAdded = new Block(
       BlockType.Regular,
@@ -116,10 +131,20 @@ function Simulation() {
 
     const newBlockchain = blockchain.addBlock(blockAdded);
     if (newBlockchain.difficulty > blockchain.difficulty) {
-      writeToConsole("Poziom trudności kopania zwiększony.");
+      writeToConsole(content.simulation.consoleNotification[7]);
     }
-    // TODO: undo button?
+
     setBlockchain(newBlockchain);
+  };
+
+  const handleUndo = () => {
+    if (blockchainHistory.length > 1) {
+      let history = blockchainHistory;
+      const previousState = history.pop();
+      setBlockchainHistory(history);
+      setBlockSelected(null);
+      _setBlockchain(previousState);
+    }
   };
 
   return (
@@ -161,25 +186,40 @@ function Simulation() {
       />
       <div className="simulation_toolbar">
         <div className="simulation_toolbar_leftside">
-          <form className="simulation_toolbar_leftside_form">
-            <input
-              type="text"
-              id="miner"
-              name="miner"
-              placeholder="Nazwa kopacza"
-              onChange={(e) => setMiner(e.target.value)}
-            />
+          <div>
+            <form className="simulation_toolbar_leftside_form">
+              <input
+                type="text"
+                id="miner"
+                name="miner"
+                placeholder={content.simulation.form[0]}
+                onChange={(e) => setMiner(e.target.value)}
+              />
+              <button
+                className="basic-button"
+                type="submit"
+                onClick={handleAddBlock}
+              >
+                {content.simulation.form[1]}
+              </button>
+            </form>
+            <p className="simulation_toolbar_leftside_difficulty">
+              {content.simulation.difficulty}: {blockchain.difficulty}
+            </p>
+          </div>
+          <div>
             <button
               className="basic-button"
-              type="submit"
-              onClick={handleAddBlock}
+              style={{ padding: "10px" }}
+              onClick={handleUndo}
             >
-              Dodaj blok
+              <img
+                src="Assets/undo.webp"
+                alt="Undo"
+                style={{ maxWidth: "50px", maxHeight: "50px" }}
+              ></img>
             </button>
-          </form>
-          <p className="simulation_toolbar_leftside_difficulty">
-            Poziom trudności kopania: {blockchain.difficulty}
-          </p>
+          </div>
         </div>
         <pre className="simulation_toolbar_console">
           {consoleData}
@@ -187,19 +227,19 @@ function Simulation() {
         </pre>
         <div className="simulation_toolbar_rightside">
           <button className="basic-button" onClick={handleClearOrphans}>
-            Usuń osierocone bloki
+            {content.simulation.buttons[0]}
           </button>
           <button className="basic-button" onClick={() => setConsoleData("")}>
-            Wyczyść konsole
+            {content.simulation.buttons[1]}
           </button>
           <button className="basic-button" onClick={handleResetBlockchain}>
-            Zresetuj blockchain
+            {content.simulation.buttons[2]}
           </button>
           <button
             className="basic-button"
             onClick={() => setRerenderSwitch(!rerenderSwitch)}
           >
-            Wycentruj blockchain
+            {content.simulation.buttons[3]}
           </button>
         </div>
       </div>

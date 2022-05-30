@@ -1,3 +1,4 @@
+import content from "../../translations/polish.json";
 import Modal from "react-modal";
 
 export default function BlockDetails(props) {
@@ -31,15 +32,15 @@ export default function BlockDetails(props) {
       onRequestClose={props.close}
     >
       <div style={{ fontSize: "20px" }}>
-        Poprzedni hash: {props.block.prevHash}
+        {content.simulation.details[0]}: {props.block.prevHash}
         <br />
-        Znacznik czasowy: {props.block.timestamp}
+        {content.simulation.details[1]}: {props.block.timestamp}
         <br />
         Nonce: {props.block.nonce}
         <br />
-        Typ: {props.block.type.toString()}
+        {content.simulation.details[2]}: {props.block.type.toString()}
         <br />
-        Kopacz: {props.block.miner}
+        {content.simulation.details[3]}: {props.block.miner}
         <br />
         <hr style={{ border: "1px solid black" }} />
         {props.block.transactions.map((tx) => {
@@ -47,7 +48,7 @@ export default function BlockDetails(props) {
             <li key={tx.index}>
               Hash: {tx.hash}
               <br />
-              Znacznik czasowy: {tx.timestamp}
+              {content.simulation.details[1]}: {tx.timestamp}
             </li>
           );
         })}

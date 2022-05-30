@@ -137,6 +137,9 @@
 
 .simulation_toolbar_leftside {
   grid-area: "left-side";
+  gap: 20px;
+  display: flex;
+  flex-direction: row;
   align-items: center;
   align-self: center;
   margin: 20px;
