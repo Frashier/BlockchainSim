@@ -1,4 +1,5 @@
 import "./BlockComponent.css";
+import glassImage from "../../../Assets/glass.png";
 import BlockDetails from "../BlockDetails";
 import { BlockType } from "../utils/blockchain";
 import { motion } from "framer-motion";
@@ -47,7 +48,7 @@ export default function BlockComponent(props) {
         <button onClick={() => setInspectOpen(true)} className="block_button">
           <img
             style={{ maxWidth: "100%", maxHeight: "100%" }}
-            src="Assets/glass.png"
+            src={glassImage}
             alt="Inspect"
           />
         </button>

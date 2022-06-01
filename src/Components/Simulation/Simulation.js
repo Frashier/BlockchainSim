@@ -1,5 +1,6 @@
 import "./Simulation.css";
 import "../../index.css";
+import undoImage from "../../Assets/undo.webp";
 import content from "../../translations/polish.json";
 import BlockchainComponent from "./BlockchainComponent";
 import { useState, useRef, useEffect } from "react";
@@ -214,7 +215,7 @@ function Simulation() {
               onClick={handleUndo}
             >
               <img
-                src="Assets/undo.webp"
+                src={undoImage}
                 alt="Undo"
                 style={{ maxWidth: "50px", maxHeight: "50px" }}
               ></img>

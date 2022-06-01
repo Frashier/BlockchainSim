@@ -1,5 +1,8 @@
 import "./Homepage.css";
 import "../../index.css";
+import structureImage from "../../Assets/Blockchain.svg";
+import blockImage from "../../Assets/bitcoin_block.svg";
+import networkImage from "../../Assets/P2P_network.svg";
 import CustomDiv from "./CustomDiv";
 import content from "../../translations/polish.json";
 import { motion } from "framer-motion";
@@ -16,7 +19,7 @@ function Homepage() {
       </CustomDiv>
       <CustomDiv className="homepage_body" style={{ gridArea: "first-image" }}>
         <img
-          src="Assets/Blockchain.svg"
+          src={structureImage}
           alt="Blockchain structure"
           style={{ height: "500px" }}
         ></img>
@@ -27,8 +30,8 @@ function Homepage() {
       </CustomDiv>
       <CustomDiv className="homepage_body" style={{ gridArea: "second-image" }}>
         <img
-          src="Assets/Bitcoin_Block_data.svg"
-          alt="Blockchain structure"
+          src={blockImage}
+          alt="Block structure"
           style={{ maxWidth: "100%" }}
         ></img>
       </CustomDiv>
@@ -38,8 +41,8 @@ function Homepage() {
       </CustomDiv>
       <CustomDiv className="homepage_body" style={{ gridArea: "third-image" }}>
         <img
-          src="Assets/P2P_network.svg"
-          alt="Blockchain newtork"
+          src={networkImage}
+          alt="Blockchain network"
           style={{ maxWidth: "100%" }}
         ></img>
       </CustomDiv>
