@@ -23,7 +23,7 @@ function Simulation() {
   const [rerenderSwitch, setRerenderSwitch] = useState(false);
 
   const svgRef = useRef(null);
-  const consoleBottomRef = useRef(null);
+  const consoleRef = useRef(null);
 
   const setBlockchain = (newBlockchain) => {
     let newHistory = [...blockchainHistory, blockchain];
@@ -62,7 +62,8 @@ function Simulation() {
 
   // Scrolling to bottom of console on console update
   useEffect(() => {
-    consoleBottomRef.current.scrollIntoView();
+    consoleRef.current.scrollTop = consoleRef.current.scrollHeight;
+    //consoleBottomRef.current.scrollIntoView();
   }, [consoleData]);
 
   const handleClearOrphans = () => {
@@ -158,10 +159,10 @@ function Simulation() {
     >
       <div className="simulation_scene">
         <motion.svg
+          style={{ objectFit: "fill", display: "block", height: "auto" }}
+          viewBox="0 0 100vw 100vh"
           width="100%"
           height="100%"
-          viewBox="0 0 100vw 100vh"
-          style={{ objectFit: "fill" }}
           ref={svgRef}
           key={rerenderSwitch}
         >
@@ -222,9 +223,8 @@ function Simulation() {
             </button>
           </div>
         </div>
-        <pre className="simulation_toolbar_console">
+        <pre ref={consoleRef} className="simulation_toolbar_console">
           {consoleData}
-          <div ref={consoleBottomRef} />
         </pre>
         <div className="simulation_toolbar_rightside">
           <button className="basic-button" onClick={handleClearOrphans}>

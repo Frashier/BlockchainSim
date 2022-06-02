@@ -1,3 +1,5 @@
+@import "normalize.css";
+
 body {
   --dark: #1b2125;
   --red: #b8424d;

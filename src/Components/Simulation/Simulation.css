@@ -6,6 +6,7 @@
 }
 
 .simulation_scene {
+  display: flex;
   flex: 1 1 0%;
   overflow: hidden;
   max-height: 100%;
@@ -13,6 +14,12 @@
   margin: 1%;
   border: 2px solid black;
   background-color: rgba(27, 33, 37, 0.7);
+}
+
+.simulation_scene_svg {
+  height: auto;
+  display: block;
+  object-fit: fill;
 }
 
 .simulation_scene_slider {
