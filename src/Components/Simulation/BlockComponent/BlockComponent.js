@@ -47,7 +47,7 @@ export default function BlockComponent(props) {
         </div>
         <button onClick={() => setInspectOpen(true)} className="block_button">
           <img
-            style={{ maxWidth: "100%", maxHeight: "100%" }}
+            style={{ maxWidth: "100%", maxHeight: "100%", userSelect: "none" }}
             src={glassImage}
             alt="Inspect"
           />
