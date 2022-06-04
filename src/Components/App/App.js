@@ -10,8 +10,14 @@ function App() {
       <div className="app_container">
         <Navbar />
         <Routes className="app_body">
-          <Route path="/simulation" element={<Simulation />} />
-          <Route path="/" element={<Homepage />} />
+          <Route
+            path={`/${process.env.REACT_REPO_NAME}/simulation`}
+            element={<Simulation />}
+          />
+          <Route
+            path={`/${process.env.REACT_REPO_NAME}`}
+            element={<Homepage />}
+          />
         </Routes>
       </div>
     </BrowserRouter>
