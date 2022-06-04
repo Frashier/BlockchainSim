@@ -11,10 +11,12 @@ function App() {
         <Navbar />
         <Routes className="app_body">
           <Route
+            exact
             path={`/${process.env.REACT_REPO_NAME}/simulation`}
             element={<Simulation />}
           />
           <Route
+            exact
             path={`/${process.env.REACT_REPO_NAME}`}
             element={<Homepage />}
           />
