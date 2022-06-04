@@ -12,14 +12,10 @@ function App() {
         <Routes className="app_body">
           <Route
             exact
-            path={`/${process.env.REACT_APP_REPO_NAME}/simulation`}
+            path={`/BlockchainSim/simulation`}
             element={<Simulation />}
           />
-          <Route
-            exact
-            path={`/${process.env.REACT_APP_REPO_NAME}`}
-            element={<Homepage />}
-          />
+          <Route exact path={`/BlockchainSim`} element={<Homepage />} />
         </Routes>
       </div>
     </BrowserRouter>
