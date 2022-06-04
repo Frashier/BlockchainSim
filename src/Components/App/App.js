@@ -12,12 +12,12 @@ function App() {
         <Routes className="app_body">
           <Route
             exact
-            path={`/${process.env.REACT_REPO_NAME}/simulation`}
+            path={`/${process.env.REACT_APP_REPO_NAME}/simulation`}
             element={<Simulation />}
           />
           <Route
             exact
-            path={`/${process.env.REACT_REPO_NAME}`}
+            path={`/${process.env.REACT_APP_REPO_NAME}`}
             element={<Homepage />}
           />
         </Routes>
