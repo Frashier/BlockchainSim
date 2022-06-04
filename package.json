@@ -22,7 +22,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
-  "homepage": "https://frashier.github.io/BlockchainSim",
+  "homepage": "https://frashier.github.io/blockchain-sim",
   "eslintConfig": {
     "extends": [
       "react-app",
