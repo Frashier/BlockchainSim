@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/BlockchainSim/static/css/main.9fe833ef.css",
-    "main.js": "/BlockchainSim/static/js/main.90072d09.js",
+    "main.css": "/BlockchainSim/static/css/main.9babd58f.css",
+    "main.js": "/BlockchainSim/static/js/main.e9e7b5df.js",
     "static/js/787.7c19505e.chunk.js": "/BlockchainSim/static/js/787.7c19505e.chunk.js",
     "static/media/bitcoin_block.svg": "/BlockchainSim/static/media/bitcoin_block.a8ce890af7b3000b107fe49e65b17674.svg",
     "static/media/glass.png": "/BlockchainSim/static/media/glass.493eaf37d6b6c570b527.png",
@@ -9,12 +9,12 @@
     "static/media/undo.webp": "/BlockchainSim/static/media/undo.a3111019c9be44d474f2.webp",
     "index.html": "/BlockchainSim/index.html",
     "static/media/Blockchain.svg": "/BlockchainSim/static/media/Blockchain.b681c8c17a6c18bf6021e0d26d6f80df.svg",
-    "main.9fe833ef.css.map": "/BlockchainSim/static/css/main.9fe833ef.css.map",
-    "main.90072d09.js.map": "/BlockchainSim/static/js/main.90072d09.js.map",
+    "main.9babd58f.css.map": "/BlockchainSim/static/css/main.9babd58f.css.map",
+    "main.e9e7b5df.js.map": "/BlockchainSim/static/js/main.e9e7b5df.js.map",
     "787.7c19505e.chunk.js.map": "/BlockchainSim/static/js/787.7c19505e.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.9fe833ef.css",
-    "static/js/main.90072d09.js"
+    "static/css/main.9babd58f.css",
+    "static/js/main.e9e7b5df.js"
   ]
 }
