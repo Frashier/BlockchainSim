@@ -71,12 +71,7 @@ export default function BlockchainComponent(props) {
   }
 
   return (
-    <motion.g
-      drag
-      dragMomentum={false}
-      dragConstraints={props.constraintRef}
-      style={{ touchAction: "none" }}
-    >
+    <motion.g drag dragMomentum={false} dragConstraints={props.constraintRef}>
       {blocksAndCoords.map((blockAndCoords) => {
         return (
           <motion.g
