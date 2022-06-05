@@ -6,7 +6,6 @@
 }
 
 .simulation_scene {
-  touch-action: none;
   display: flex;
   flex: 1 1 0%;
   overflow: hidden;
