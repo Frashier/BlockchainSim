@@ -112,7 +112,6 @@ class Block {
     const toHash = (
       this.prevHash +
       this.timestamp +
-      this.transactions +
       this.nonce +
       nonce
     ).toString();
