@@ -1,70 +1,19 @@
-# Getting Started with Create React App
+# BlockchainSim
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Website simulating blockchain data structure.
 
-## Available Scripts
+Because of the decentralized nature of blockchain databases, this project's blockchain implementation is altered in such a way that an accurate enough representation of the real-life data structure is possible having in mind that in this instance it operates on a single client and every calculation is performed client-side.
 
-In the project directory, you can run:
+## Stack
 
-### `npm start`
+Project is written using React library for Javascript. Entirety of the data structure's graphical representation is made using Framer's Motion library for animations and gestures. Crypto-js is used for hashing purposes.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Implementation
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Overview
 
-### `npm test`
+Core of the blockchain implementation lays in blockchain.js, where logic for blockchain and individual blocks is defined. Classes contain little to no helpers for constructing graphical representation. The only notable exception is the weight system. The reason for it's existence being that it reduces the amount of calculations required for every task. It's implemented purely for the ease of use for users, otherwise browser would get blocked fast as data structure grows.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Weight system
 
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+As of writting this README, every block has a "weight" property. Genesis has it's weight set to 0 and every following block has it's weight equal to it's parent's incremented by one. Blockchain has "maxWeight" property, which is equal to the biggest weight present in the blockchain. Adding blocks is only possible to blocks with weight >= maxWeight - 1. A branch is orphaned, when it's not possible to add blocks to any of it's blocks.
