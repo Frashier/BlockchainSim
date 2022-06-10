@@ -43,7 +43,8 @@ export default function BlockComponent(props) {
         className="block_text"
       >
         <div className="block_header">
-          0x{props.block.prevHash.toString().substring(0, 8)}...
+          {props.block.type !== BlockType.Genesis &&
+            "0x" + props.block.prevHash.toString().substring(0, 8) + "..."}
         </div>
         <button onClick={() => setInspectOpen(true)} className="block_button">
           <img

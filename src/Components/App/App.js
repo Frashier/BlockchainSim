@@ -1,6 +1,6 @@
 import "./App.css";
 import Navbar from "../Navbar/Navbar";
-import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Homepage from "../Homepage/Homepage";
 import Simulation from "../Simulation/Simulation";
 
