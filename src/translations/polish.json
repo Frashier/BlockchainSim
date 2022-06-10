@@ -28,7 +28,14 @@
       "Zresetuj blockchain",
       "Wycentruj blockchain"
     ],
-    "details": ["Poprzedni hash", "Znacznik czasowy", "Typ", "Kopacz"]
+    "details": [
+      "Hasz poprzedniego bloku",
+      "Znacznik czasowy",
+      "Typ",
+      "Hasz bloku transakcji",
+      "Kopacz",
+      "Transakcje"
+    ]
   },
   "navbar": {
     "homepage": "Strona główna",

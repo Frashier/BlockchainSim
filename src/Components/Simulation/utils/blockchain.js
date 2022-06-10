@@ -2,7 +2,7 @@ import sha1 from "crypto-js/sha1";
 import Hex from "crypto-js/enc-hex";
 
 function sha1HexHash(toHash) {
-  return Hex.stringify(sha1(toHash));
+  return Hex.stringify(sha1(toHash.toString()));
 }
 
 function hex2bin(hex) {
@@ -77,16 +77,37 @@ class Block {
     this.miner = miner;
     this.weight = weight;
 
-    // Don't generate txs for genesis.
-    // Generate txs for block if txs
-    // haven't been passed in constructor.
-    if (type === BlockType.Genesis) {
-      this.transactions = [];
-    } else {
-      this.transactions = transactions
-        ? transactions
-        : Transaction.generateRandomTransactions(BLOCK_SIZE);
+    this.transactions = transactions
+      ? transactions
+      : Transaction.generateRandomTransactions(BLOCK_SIZE);
+
+    this.merkleTreeRoot = this.#createMerkleTreeRoot();
+  }
+
+  // Private method used for creating merkle tree root
+  #createMerkleTreeRoot() {
+    let currentLevel = [...this.transactions.map((tx) => tx.hash)];
+    let nextLevel = [];
+
+    while (nextLevel.length !== 1) {
+      nextLevel = [];
+
+      const n = currentLevel.length;
+      for (let i = 0; i < n; i = i + 2) {
+        const hashA = currentLevel[i];
+        let hashB;
+        if (i + 1 === n) {
+          hashB = hashA;
+        } else {
+          hashB = currentLevel[i + 1];
+        }
+        nextLevel.push(sha1HexHash(hashA + hashB));
+      }
+
+      currentLevel = [...nextLevel];
     }
+
+    return nextLevel[0];
   }
 
   changeType(type) {
@@ -113,6 +134,7 @@ class Block {
       this.prevHash +
       this.timestamp +
       this.nonce +
+      this.merkleTreeRoot +
       nonce
     ).toString();
 
@@ -219,7 +241,7 @@ class Blockchain {
     let blockStack = [block];
     let maxWeight = block.weight;
 
-    while (blockStack.length != 0) {
+    while (blockStack.length !== 0) {
       const currentBlock = blockStack.shift();
       const children = this.childrenOf(currentBlock);
       blockStack = [...children, ...blockStack];

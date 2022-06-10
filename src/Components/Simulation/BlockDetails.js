@@ -32,7 +32,7 @@ export default function BlockDetails(props) {
       onRequestClose={props.close}
     >
       <div style={{ fontSize: "20px" }}>
-        {content.simulation.details[0]}: {props.block.prevHash}
+        {content.simulation.details[0]}: {"0x" + props.block.prevHash}
         <br />
         {content.simulation.details[1]}: {props.block.timestamp}
         <br />
@@ -40,13 +40,16 @@ export default function BlockDetails(props) {
         <br />
         {content.simulation.details[2]}: {props.block.type.toString()}
         <br />
-        {content.simulation.details[3]}: {props.block.miner}
+        {content.simulation.details[3] + ": 0x" + props.block.merkleTreeRoot}
+        <br />
+        {content.simulation.details[4]}: {props.block.miner}
         <br />
         <hr style={{ border: "1px solid black" }} />
+        {content.simulation.details[5]}:
         {props.block.transactions.map((tx) => {
           return (
             <li key={tx.index}>
-              Hash: {tx.hash}
+              Hash: {"0x" + tx.hash}
               <br />
               {content.simulation.details[1]}: {tx.timestamp}
             </li>
