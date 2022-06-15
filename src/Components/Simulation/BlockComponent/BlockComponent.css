@@ -20,7 +20,7 @@
   user-select: none;
 }
 
-.block_button {
+.block_inspect {
   width: 30px;
   height: 30px;
   margin: 10px;
@@ -32,7 +32,7 @@
   right: 0;
 }
 
-.block_button:hover {
+.block_inspect:hover {
   transition: 0.5s;
   transform: scale(1.3);
 }

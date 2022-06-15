@@ -46,7 +46,7 @@ export default function BlockComponent(props) {
           {props.block.type !== BlockType.Genesis &&
             "0x" + props.block.prevHash.toString().substring(0, 8) + "..."}
         </div>
-        <button onClick={() => setInspectOpen(true)} className="block_button">
+        <button onClick={() => setInspectOpen(true)} className="block_inspect">
           <img
             style={{ maxWidth: "100%", maxHeight: "100%", userSelect: "none" }}
             src={glassImage}

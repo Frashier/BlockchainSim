@@ -45,6 +45,13 @@ function Simulation() {
     }
   };
 
+  const handleVerify = () => {
+    const notification = blockSelected.verify()
+      ? content.simulation.consoleNotification[9]
+      : content.simulation.consoleNotification[10];
+    writeToConsole(notification);
+  };
+
   // Method used for writting to console.
   const writeToConsole = (msg) => {
     const date = new Date();
@@ -209,7 +216,13 @@ function Simulation() {
               {content.simulation.difficulty}: {blockchain.difficulty}
             </p>
           </div>
-          <div>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "20px",
+            }}
+          >
             <button
               className="basic-button"
               style={{ padding: "10px" }}
@@ -220,6 +233,9 @@ function Simulation() {
                 alt="Undo"
                 style={{ maxWidth: "50px", maxHeight: "50px" }}
               ></img>
+            </button>
+            <button className="basic-button" onClick={handleVerify}>
+              {content.simulation.buttons[4]}
             </button>
           </div>
         </div>

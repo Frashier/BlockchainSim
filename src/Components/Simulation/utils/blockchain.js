@@ -110,6 +110,10 @@ class Block {
     return nextLevel[0];
   }
 
+  verify() {
+    return this.merkleTreeRoot === this.#createMerkleTreeRoot();
+  }
+
   changeType(type) {
     if (this.type === BlockType.Genesis) {
       return this;

@@ -20,13 +20,16 @@
       "Próba",
       "Porażka dla",
       "Sukces dla",
-      "Poziom trudności kopania zwiększony. "
+      "Poziom trudności kopania zwiększony. ",
+      "Zgodność transakcji z Merkle Tree Root",
+      "Niezgodność transakcji z Merkle Tree Root"
     ],
     "buttons": [
       "Usuń osierocone bloki",
       "Wyczyść konsole",
       "Zresetuj blockchain",
-      "Wycentruj blockchain"
+      "Wycentruj blockchain",
+      "Weryfikuj"
     ],
     "details": [
       "Hasz poprzedniego bloku",

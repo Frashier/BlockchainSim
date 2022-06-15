@@ -148,7 +148,7 @@
   gap: 20px;
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
   align-self: center;
   margin: 20px;
 }
@@ -211,5 +211,6 @@
   .simulation_toolbar_leftside {
     display: flex;
     flex-direction: column;
+    align-items: center;
   }
 }
